@@ -1,0 +1,24 @@
+[package]
+name = "kinded_macros"
+version = "0.1.0"
+edition = "2021"
+authors = ["Serhii Potapov <blake131313@gmail.com>"]
+
+description = "Generate enums with same variants, but without data."
+keywords = ["enum", "macros", "kind", "derive"]
+license = "MIT"
+repository = "https://github.com/greyblake/kinded"
+homepage = "https://github.com/greyblake/kinded"
+documentation = "https://docs.rs/kinded"
+readme = "README.md"
+categories = ["data-structures", "rust-patterns"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version = "2.0", features = ["extra-traits", "full"] }
+
+[lib]
+proc-macro = true
