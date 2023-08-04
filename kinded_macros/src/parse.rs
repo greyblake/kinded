@@ -26,7 +26,6 @@ pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
         }
     };
 
-
     Ok(Meta {
         vis: input.vis,
         ident: input.ident,

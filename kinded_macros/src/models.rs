@@ -1,6 +1,6 @@
 use proc_macro2::Ident;
 use quote::format_ident;
-use syn::{Path, Visibility, Generics};
+use syn::{Generics, Path, Visibility};
 
 #[derive(Debug)]
 pub struct Meta {
