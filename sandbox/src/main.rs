@@ -10,7 +10,21 @@ enum Role {
     },
 }
 
+
+
 fn main() {
+    use kinded::Kinded;
+
+    #[derive(Kinded)]
+    enum Drink {
+        Mate,
+        Coffee(String),
+        Tea { variety: String, caffeine: bool }
+    }
+
+    let drink = Drink::Coffee("Espresso".to_owned());
+    assert_eq!(drink.kind(), DrinkKind::Coffee);
+
     println!("Hello, world!");
 }
 
@@ -124,6 +138,4 @@ fn should_allow_to_derive_custom_traits() {
 
     let mut drinks =  HashMap::new();
     drinks.insert(DrinkKind::Tea, 5);
-
-    assert!(false);
 }
