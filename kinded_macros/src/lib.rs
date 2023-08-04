@@ -7,15 +7,17 @@ use syn::DeriveInput;
 
 // DONE:
 // * Allow renaming of kind type
+// * Allow to derive custom traits
 
 // TODO:
-// * Allow to derive custom traits
 // * Consider supporting FromStr / Display?
 // * Allow to iterate, access ALL variants of Kind
+// * Features:
+//   * enum-map
 // * Write documentation
 //   * lib.rs
 //   * README
-//   * How it differs from enum-kind ?
+//   * How it differs from enum-kinds ?
 //
 
 #[proc_macro_derive(Kinded, attributes(kinded))]

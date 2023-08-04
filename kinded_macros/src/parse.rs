@@ -5,12 +5,10 @@ use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, Token,
+    Attribute, Data, DeriveInput, Token, Path,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
-    eprintln!("{input:#?}");
-
     let kinded_attrs: KindedAttributes = {
         match find_kinded_attr(&input)? {
             Some(kinded_attr) => syn::parse2(kinded_attr.to_token_stream())?,
@@ -89,19 +87,38 @@ impl Parse for KindedAttributes {
             parenthesized_content
         };
 
-        let attr_name: Ident = input.parse()?;
-        if attr_name == "kind" {
-            let _: Token!(=) = input.parse()?;
-            let kind: Ident = input.parse()?;
-            if kinded_attrs.kind.is_none() {
-                kinded_attrs.kind = Some(kind);
+
+        while !input.is_empty() {
+            let attr_name: Ident = input.parse()?;
+            if attr_name == "kind" {
+                let _: Token!(=) = input.parse()?;
+                let kind: Ident = input.parse()?;
+                if kinded_attrs.kind.is_none() {
+                    kinded_attrs.kind = Some(kind);
+                } else {
+                    let msg = format!("Duplicated attribute: {attr_name}");
+                    return Err(syn::Error::new(attr_name.span(), msg));
+                }
+            } else if attr_name == "derive" {
+                let derive_input;
+                parenthesized!(derive_input in input);
+                let parsed_traits = derive_input.parse_terminated(Path::parse, Token![,])?;
+                let traits: Vec<Path> = parsed_traits.into_iter().collect();
+                if kinded_attrs.derive.is_none() {
+                    kinded_attrs.derive = Some(traits);
+                } else {
+                    let msg = format!("Duplicated attribute: {attr_name}");
+                    return Err(syn::Error::new(attr_name.span(), msg));
+                }
             } else {
-                let msg = format!("Duplicated attribute: {attr_name}");
+                let msg = format!("Unknown attribute: {attr_name}");
                 return Err(syn::Error::new(attr_name.span(), msg));
             }
-        } else {
-            let msg = format!("Unknown attribute: {attr_name}");
-            return Err(syn::Error::new(attr_name.span(), msg));
+
+            // Parse `,` unless it's the end of the stream
+            if !input.is_empty() {
+                let _comma: Token![,] = input.parse()?;
+            }
         }
 
         Ok(kinded_attrs)

@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "kinded"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "kinded_macros",
 ]
@@ -38,7 +38,7 @@ dependencies = [
 
 [[package]]
 name = "sandbox"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "kinded",
 ]

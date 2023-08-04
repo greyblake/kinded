@@ -43,8 +43,10 @@ fn gen_enum_kind(meta: &Meta) -> TokenStream {
     let vis = &meta.vis;
     let kind_name = meta.kind_name();
     let variant_name_idents = meta.variants.iter().map(|v| &v.ident);
+    let traits = meta.derive_traits();
+
     quote!(
-        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #[derive(#(#traits),*)]
         #vis enum #kind_name {
             #(#variant_name_idents),*
         }

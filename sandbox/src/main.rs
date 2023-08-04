@@ -110,3 +110,20 @@ fn should_allow_to_give_custom_name_kind_type() {
     let green_tea = Drink::Tea("Green");
     assert_eq!(green_tea.kind(), SimpleDrink::Tea);
 }
+
+#[test]
+fn should_allow_to_derive_custom_traits() {
+    use std::collections::HashMap;
+
+    #[derive(Kinded)]
+    #[kinded(derive(Hash, Eq))]
+    enum Drink {
+        Tea(&'static str),
+        Coffee(&'static str),
+    }
+
+    let mut drinks =  HashMap::new();
+    drinks.insert(DrinkKind::Tea, 5);
+
+    assert!(false);
+}
