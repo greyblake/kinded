@@ -5,7 +5,7 @@ use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, Token, Path,
+    Attribute, Data, DeriveInput, Path, Token,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -61,7 +61,7 @@ fn find_kinded_attr(input: &DeriveInput) -> Result<Option<&Attribute>, syn::Erro
         let &attr = kinded_attrs.last().unwrap();
         let span = attr.span();
         let msg = "Multiple #[kinded(..)] attributes are not allowed.";
-        return Err(syn::Error::new(span, msg));
+        Err(syn::Error::new(span, msg))
     } else {
         let maybe_kinded_attr = kinded_attrs.into_iter().next();
         Ok(maybe_kinded_attr)
@@ -86,7 +86,6 @@ impl Parse for KindedAttributes {
             parenthesized!(parenthesized_content in bracketed_content);
             parenthesized_content
         };
-
 
         while !input.is_empty() {
             let attr_name: Ident = input.parse()?;

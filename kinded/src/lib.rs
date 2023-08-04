@@ -123,7 +123,6 @@
 //!
 //! MIT © [Serhii Potapov](https://www.greyblake.com)
 
-
 pub use kinded_macros::Kinded;
 use std::fmt::Debug;
 

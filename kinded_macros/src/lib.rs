@@ -19,6 +19,8 @@ use syn::DeriveInput;
 // * Allow to derive custom traits
 
 // TODO:
+// * Extract test_suite
+// * Make it work with generics
 // * Consider supporting FromStr / Display?
 // * Allow to iterate, access ALL variants of Kind
 // * Features:

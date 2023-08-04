@@ -4,14 +4,14 @@ version = 3
 
 [[package]]
 name = "kinded"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "kinded_macros",
 ]
 
 [[package]]
 name = "kinded_macros"
-version = "0.1.0"
+version = "0.0.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -52,6 +52,13 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "test_suite"
+version = "0.1.0"
+dependencies = [
+ "kinded",
 ]
 
 [[package]]
