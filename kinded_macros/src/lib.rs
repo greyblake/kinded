@@ -1,3 +1,12 @@
+//! # Kinded
+//!
+//! Generate Rust enum kind types without boilerplate.
+//!
+//! Author: [Serhii Potapov](https://www.greyblake.com/)
+//!
+//! This is a supporting macro crate, that should not be used directly.
+//! For the documentation please refer to [kinded](https://docs.rs/kinded/) crate.
+
 pub(crate) mod gen;
 pub(crate) mod models;
 pub(crate) mod parse;
