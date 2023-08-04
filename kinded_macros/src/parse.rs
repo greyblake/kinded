@@ -29,6 +29,7 @@ pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
     Ok(Meta {
         vis: input.vis,
         ident: input.ident,
+        generics: input.generics,
         variants: data.variants.iter().map(parse_variant).collect(),
         kinded_attrs,
     })

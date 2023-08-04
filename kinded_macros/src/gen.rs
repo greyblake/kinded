@@ -3,19 +3,22 @@ use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
 pub fn generate(meta: Meta) -> TokenStream {
-    let kind_def = gen_enum_kind(&meta);
+    let kind_definition = gen_enum_kind(&meta);
     let fn_kind = gen_fn_kind(&meta);
-    let name = &meta.ident;
+    let type_name = &meta.ident;
     let kind_name = meta.kind_name();
+    let generics = &meta.generics;
+
+    let type_with_generics = quote!(#type_name #generics);
 
     quote!(
-        #kind_def
+        #kind_definition
 
-        impl #name {
+        impl #generics #type_with_generics {
             #fn_kind
         }
 
-        impl ::kinded::Kinded for #name {
+        impl #generics ::kinded::Kinded for #type_with_generics {
             type Kind = #kind_name;
 
             fn kind(&self) -> #kind_name {
@@ -24,15 +27,15 @@ pub fn generate(meta: Meta) -> TokenStream {
         }
 
         // From<T>
-        impl From<#name> for #kind_name {
-            fn from(value: #name) -> #kind_name {
+        impl #generics From<#type_with_generics> for #kind_name {
+            fn from(value: #type_with_generics) -> #kind_name {
                 value.kind()
             }
         }
 
         // From<&T>
-        impl From<&#name> for #kind_name {
-            fn from(value: &#name) -> #kind_name {
+        impl #generics From<&#type_with_generics> for #kind_name {
+            fn from(value: &#type_with_generics) -> #kind_name {
                 value.kind()
             }
         }

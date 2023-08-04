@@ -122,3 +122,30 @@ fn should_allow_to_derive_custom_traits() {
     let mut drinks = HashMap::new();
     drinks.insert(DrinkKind::Tea, 5);
 }
+
+#[test]
+fn should_work_with_generics() {
+    use std::collections::HashMap;
+
+    #[derive(Kinded)]
+    enum Maybe<T> {
+        Just(T),
+        Nothing,
+    }
+
+    assert_eq!(Maybe::Just(13).kind(), MaybeKind::Just);
+}
+
+#[test]
+fn should_work_with_lifetimes() {
+    use std::collections::HashMap;
+
+    #[derive(Kinded)]
+    enum Identifier<'a, I> {
+        Name(&'a str),
+        Id(I),
+    }
+
+    let identifier: Identifier<i32> = Identifier::Name("Xen");
+    assert_eq!(identifier.kind(), IdentifierKind::Name);
+}
