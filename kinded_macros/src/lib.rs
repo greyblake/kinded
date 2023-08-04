@@ -5,9 +5,11 @@ pub(crate) mod parse;
 use proc_macro2::TokenStream;
 use syn::DeriveInput;
 
+// DONE:
+// * Allow renaming of kind type
+
 // TODO:
 // * Allow to derive custom traits
-// * Allow renaming of kind type
 // * Consider supporting FromStr / Display?
 // * Allow to iterate, access ALL variants of Kind
 // * Write documentation

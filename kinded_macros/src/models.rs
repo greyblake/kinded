@@ -11,11 +11,18 @@ pub struct Meta {
     pub ident: Ident,
 
     pub variants: Vec<Variant>,
+
+    /// Attributes specified with #[kinded(..)] above the enum definition.
+    pub kinded_attrs: KindedAttributes,
 }
 
 impl Meta {
     pub fn kind_name(&self) -> Ident {
-        format_ident!("{}Kind", self.ident)
+        if let Some(ref kind_name) = self.kinded_attrs.kind {
+            kind_name.clone()
+        } else {
+            format_ident!("{}Kind", self.ident)
+        }
     }
 }
 
@@ -36,4 +43,11 @@ pub enum FieldsType {
 
     /// Example: `Guest`
     Unit,
+}
+
+/// Attributes specified with #[kinded(..)]
+#[derive(Debug, Default)]
+pub struct KindedAttributes {
+    /// Name for the kind type
+    pub kind: Option<Ident>,
 }

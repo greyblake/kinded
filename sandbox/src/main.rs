@@ -5,13 +5,14 @@ enum Role {
     Guest,
     User(i32),
     #[allow(dead_code)]
-    Admin { id: i32 },
+    Admin {
+        id: i32,
+    },
 }
 
 fn main() {
     println!("Hello, world!");
 }
-
 
 #[cfg(test)]
 mod base_enum {
@@ -34,7 +35,7 @@ mod base_enum {
 
         #[test]
         fn should_convert_named_variant() {
-            let admin = Role::Admin { id:  404 };
+            let admin = Role::Admin { id: 404 };
             assert_eq!(admin.kind(), RoleKind::Admin);
         }
     }
@@ -55,7 +56,6 @@ mod base_enum {
     }
 }
 
-
 #[cfg(test)]
 mod kind_enum {
     mod traits {
@@ -63,10 +63,7 @@ mod kind_enum {
 
         #[test]
         fn should_implement_debug() {
-            assert_eq!(
-                format!("{:?}", RoleKind::Guest),
-                "Guest"
-            )
+            assert_eq!(format!("{:?}", RoleKind::Guest), "Guest")
         }
 
         #[test]
@@ -104,8 +101,12 @@ mod kind_enum {
 #[test]
 fn should_allow_to_give_custom_name_kind_type() {
     #[derive(Kinded)]
+    #[kinded(kind = SimpleDrink)]
     enum Drink {
-        Tea(String),
-        Coffee(String),
+        Tea(&'static str),
+        Coffee(&'static str),
     }
+
+    let green_tea = Drink::Tea("Green");
+    assert_eq!(green_tea.kind(), SimpleDrink::Tea);
 }
