@@ -65,7 +65,7 @@ fn gen_fn_kind(meta: &Meta) -> TokenStream {
         .map(|variant| gen_match_branch(name, &kind_name, variant));
 
     quote!(
-        fn kind(&self) -> #kind_name {
+        pub fn kind(&self) -> #kind_name {
             match self {
                 #(#match_branches),*
             }
