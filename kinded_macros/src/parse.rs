@@ -5,7 +5,7 @@ use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, Token, Path,
+    Attribute, Data, DeriveInput, Path, Token,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -86,7 +86,6 @@ impl Parse for KindedAttributes {
             parenthesized!(parenthesized_content in bracketed_content);
             parenthesized_content
         };
-
 
         while !input.is_empty() {
             let attr_name: Ident = input.parse()?;

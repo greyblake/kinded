@@ -1,6 +1,6 @@
 use proc_macro2::Ident;
 use quote::format_ident;
-use syn::{Visibility, Path};
+use syn::{Path, Visibility};
 
 #[derive(Debug)]
 pub struct Meta {
@@ -28,13 +28,13 @@ impl Meta {
 
     /// Get the traits that need to be derived.
     pub fn derive_traits(&self) -> Vec<Path> {
-        const DEFAULT_DERIVE_TRAITS: &[&'static str] = &[
-            "Debug", "Clone", "Copy", "PartialEq", "Eq",
-        ];
+        const DEFAULT_DERIVE_TRAITS: &[&'static str] =
+            &["Debug", "Clone", "Copy", "PartialEq", "Eq"];
 
-        let mut traits: Vec<Path> = DEFAULT_DERIVE_TRAITS.iter().map(|trait_name| {
-            Path::from(format_ident!("{trait_name}"))
-        }).collect();
+        let mut traits: Vec<Path> = DEFAULT_DERIVE_TRAITS
+            .iter()
+            .map(|trait_name| Path::from(format_ident!("{trait_name}")))
+            .collect();
 
         // Add the extra specified traits, if they're different from the default ones
         if let Some(ref extra_traits) = self.kinded_attrs.derive {
