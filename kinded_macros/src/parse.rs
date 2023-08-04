@@ -61,7 +61,7 @@ fn find_kinded_attr(input: &DeriveInput) -> Result<Option<&Attribute>, syn::Erro
         let &attr = kinded_attrs.last().unwrap();
         let span = attr.span();
         let msg = "Multiple #[kinded(..)] attributes are not allowed.";
-        return Err(syn::Error::new(span, msg));
+        Err(syn::Error::new(span, msg))
     } else {
         let maybe_kinded_attr = kinded_attrs.into_iter().next();
         Ok(maybe_kinded_attr)

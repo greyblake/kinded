@@ -28,8 +28,7 @@ impl Meta {
 
     /// Get the traits that need to be derived.
     pub fn derive_traits(&self) -> Vec<Path> {
-        const DEFAULT_DERIVE_TRAITS: &[&'static str] =
-            &["Debug", "Clone", "Copy", "PartialEq", "Eq"];
+        const DEFAULT_DERIVE_TRAITS: &[&str] = &["Debug", "Clone", "Copy", "PartialEq", "Eq"];
 
         let mut traits: Vec<Path> = DEFAULT_DERIVE_TRAITS
             .iter()
