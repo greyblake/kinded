@@ -18,7 +18,25 @@ let drink = Drink::Coffee("Espresso".to_owned());
 assert_eq!(drink.kind(), DrinkKind::Coffee);
 ```
 
-Note, the definition of `DrinkKind` enum was generated automatically as well as `Drink::kind()` method.
+Note, the definition of `DrinkKind` enum is generated automatically as well as `Drink::kind()` method.
+To put it simply you get something similar to the following:
+
+```rs
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DrinkKind {
+    Mate,
+    Coffee,
+    Tea
+}
+
+impl Drink {
+    fn kind(&self) -> DrinkKind {
+        Drink::Mate => DrinkKind::Mate,
+        Drink::Coffee(..) => DrinkKind::Coffee,
+        Drink::Tea { .. } => DrinkKind::Tea,
+    }
+}
+```
 
 ## Kinded trait
 
@@ -38,17 +56,22 @@ From the example above, the derived implementation of `Kinded` for `Drink` resem
 impl Kinded for Drink {
     type Kind = DrinkKind;
 
-    fn kind(&self) -> DrinkKind {
-        match self {
-            Drink::Mate => DrinkKind::Mate,
-            Drink::Coffee(..) => DrinkKind::Coffee,
-            Drink::Tea { .. } => DrinkKind::Tea,
-        }
-    }
+    fn kind(&self) -> DrinkKind { /* implementation */ }
 }
 ```
 
 The `Kinded` trait allows to build abstract functions that can be used with different enum types.
+
+## Iterating
+
+The kind type gets implementation of `::all()` associated function, which returns an iterator over all kind variants.
+For example:
+
+```rs
+let all_drink_kinds: Vec<_> = DrinkKind::all().collect();
+assert_eq!(all_drink_kinds, vec![DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
+```
+
 
 ## Attributes
 

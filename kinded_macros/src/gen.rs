@@ -3,7 +3,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
 pub fn generate(meta: Meta) -> TokenStream {
-    let kind_definition = gen_enum_kind(&meta);
+    let enum_kind = gen_enum_kind(&meta);
     let fn_kind = gen_fn_kind(&meta);
     let type_name = &meta.ident;
     let kind_name = meta.kind_name();
@@ -12,47 +12,53 @@ pub fn generate(meta: Meta) -> TokenStream {
     let type_with_generics = quote!(#type_name #generics);
 
     quote!(
-        #kind_definition
+        #enum_kind                                                             // enum DrinkKind { Mate, Coffee, Tea }
 
-        impl #generics #type_with_generics {
-            #fn_kind
-        }
+        impl #generics #type_with_generics {                                   // impl<T> Drink<T> {
+            #fn_kind                                                           //     fn kind(&self) -> DrinkKind { ... }
+        }                                                                      // }
 
-        impl #generics ::kinded::Kinded for #type_with_generics {
-            type Kind = #kind_name;
+        impl #generics ::kinded::Kinded for #type_with_generics {              // impl<T> ::kinded::Kinded for Drink<T> {
+            type Kind = #kind_name;                                            //     type Kind = DrinkKind;
+                                                                               //
+            fn kind(&self) -> #kind_name {                                     //     fn kind(&self) -> DrinkKind {
+                self.kind()                                                    //         self.kind()
+            }                                                                  //     }
+        }                                                                      // }
 
-            fn kind(&self) -> #kind_name {
-                self.kind()
-            }
-        }
+        impl #generics From<#type_with_generics> for #kind_name {              // impl<'a, T> From<Drink<'a, T>> for DrinkKind {
+            fn from(value: #type_with_generics) -> #kind_name {                //     fn from(value: Drink<'a, T>) -> DrinkKind {
+                value.kind()                                                   //         value.kind()
+            }                                                                  //     }
+        }                                                                      // }
 
-        // From<T>
-        impl #generics From<#type_with_generics> for #kind_name {
-            fn from(value: #type_with_generics) -> #kind_name {
-                value.kind()
-            }
-        }
-
-        // From<&T>
-        impl #generics From<&#type_with_generics> for #kind_name {
-            fn from(value: &#type_with_generics) -> #kind_name {
-                value.kind()
-            }
-        }
+        impl #generics From<&#type_with_generics> for #kind_name {             // impl<'a, T> From<Drink<'a, T>> for DrinkKind {
+            fn from(value: &#type_with_generics) -> #kind_name {               //     fn from(value: &Drink<'a, T>) -> DrinkKind {
+                value.kind()                                                   //         value.kind()
+            }                                                                  //     }
+        }                                                                      // }
     )
 }
 
 fn gen_enum_kind(meta: &Meta) -> TokenStream {
     let vis = &meta.vis;
     let kind_name = meta.kind_name();
-    let variant_name_idents = meta.variants.iter().map(|v| &v.ident);
+    let variant_names: Vec<&Ident> = meta.variants.iter().map(|v| &v.ident).collect();
     let traits = meta.derive_traits();
 
     quote!(
-        #[derive(#(#traits),*)]
-        #vis enum #kind_name {
-            #(#variant_name_idents),*
-        }
+        #[derive(#(#traits),*)]                                                // #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #vis enum #kind_name {                                                 // pub enum DrinkKind {
+            #(#variant_names),*                                                //     Mate, Coffee, Tea
+        }                                                                      // }
+
+        impl #kind_name {                                                      // impl DrinkKind {
+            pub fn all() -> impl Iterator<Item = #kind_name> {                 //     pub fn all() -> impl Iterator<Item = DrinkKind> {
+                [                                                              //         [
+                    #(#kind_name::#variant_names),*                            //             DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea
+                ].into_iter()                                                  //         ]
+            }                                                                  //     }
+        }                                                                      // }
     )
 }
 
@@ -65,11 +71,11 @@ fn gen_fn_kind(meta: &Meta) -> TokenStream {
         .map(|variant| gen_match_branch(name, &kind_name, variant));
 
     quote!(
-        pub fn kind(&self) -> #kind_name {
-            match self {
-                #(#match_branches),*
-            }
-        }
+        pub fn kind(&self) -> #kind_name {                                     // pub fn kind(&self) -> DrinkKind {
+            match self {                                                       //     match self {
+                #(#match_branches),*                                           //         Drink::Coffee(..) => DrinkKind::Coffee,
+            }                                                                  //     }
+        }                                                                      // }
     )
 }
 

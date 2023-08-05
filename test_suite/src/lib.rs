@@ -55,6 +55,8 @@ mod base_enum {
 }
 
 mod kind_enum {
+    use super::RoleKind;
+
     mod traits {
         use super::super::{Role, RoleKind};
 
@@ -92,6 +94,15 @@ mod kind_enum {
             let guest = Role::Guest;
             assert_eq!(RoleKind::from(&guest), RoleKind::Guest);
         }
+    }
+
+    #[test]
+    fn should_provide_all_function_that_returns_iterator() {
+        let kinds: Vec<_> = RoleKind::all().collect();
+        assert_eq!(
+            kinds,
+            vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin],
+        )
     }
 }
 

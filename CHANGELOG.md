@@ -1,4 +1,7 @@
-## v0.0.2 - 2023-08-05
+## Next version
+* Add `::all()` to the kind type to iterate over all kind variants
+
+## v0.0.3 - 2023-08-05
 * Make generated `kind()` function public
 
 ## v0.0.2 - 2023-08-05
