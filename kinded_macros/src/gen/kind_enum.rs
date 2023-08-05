@@ -1,4 +1,4 @@
-use crate::models::{DisplayCase, FieldsType, Meta, Variant};
+use crate::models::{DisplayCase, Meta};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
