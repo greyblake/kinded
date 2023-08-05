@@ -137,7 +137,19 @@ mod kind_enum {
                     HotMate,
                 }
 
-                assert_eq!(DrinkKind::HotMate.to_string(), "HotMate") }
+                assert_eq!(DrinkKind::HotMate.to_string(), "HotMate")
+            }
+
+            #[test]
+            fn should_handle_screaming_snake_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "SCREAMING_SNAKE_CASE")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HOT_MATE")
+            }
         }
     }
 

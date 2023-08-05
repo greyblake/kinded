@@ -117,10 +117,16 @@ impl Parse for KindedAttributes {
                     "snake_case" => DisplayCase::SnakeCase,
                     "camelCase" => DisplayCase::CamelCase,
                     "PascalCase" => DisplayCase::PascalCase,
+                    "SCREAMING_SNAKE_CASE" => DisplayCase::ScreamingSnakeCase,
                     _ => {
-                        let valid_values = ["snake_case", "camelCase", "PascalCase"]
-                            .map(|value| format!(r#""{value}""#))
-                            .join(", ");
+                        let valid_values = [
+                            "snake_case",
+                            "camelCase",
+                            "PascalCase",
+                            "SCREAMING_SNAKE_CASE",
+                        ]
+                        .map(|value| format!(r#""{value}""#))
+                        .join(", ");
                         let given_value = format!(r#""{}""#, case_lit_str.value());
                         let msg = format!("Invalid value for display: {given_value}\nValid values are: {valid_values}");
                         return Err(syn::Error::new(case_lit_str.span(), msg));

@@ -92,6 +92,9 @@ pub enum DisplayCase {
 
     /// PascalCase
     PascalCase,
+
+    /// SCREAMING_SNAKE_CASE
+    ScreamingSnakeCase,
 }
 
 impl From<DisplayCase> for convert_case::Case {
@@ -102,6 +105,7 @@ impl From<DisplayCase> for convert_case::Case {
             DisplayCase::SnakeCase => Case::Snake,
             DisplayCase::CamelCase => Case::Camel,
             DisplayCase::PascalCase => Case::Pascal,
+            DisplayCase::ScreamingSnakeCase => Case::ScreamingSnake,
         }
     }
 }
