@@ -79,13 +79,16 @@ pub struct KindedAttributes {
     pub derive: Option<Vec<Path>>,
 
     /// Attributes to customize implementation for Display trait
-    pub display: Option<DisplayCase>
+    pub display: Option<DisplayCase>,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum DisplayCase {
     /// snake_case
-    SnakeCase
+    SnakeCase,
+
+    /// camelCase
+    CamelCase,
 }
 
 impl From<DisplayCase> for convert_case::Case {
@@ -94,6 +97,7 @@ impl From<DisplayCase> for convert_case::Case {
 
         match display_case {
             DisplayCase::SnakeCase => Case::Snake,
+            DisplayCase::CamelCase => Case::Camel,
         }
     }
 }

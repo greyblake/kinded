@@ -1,11 +1,11 @@
-use crate::models::{FieldsType, KindedAttributes, Meta, Variant, DisplayCase};
+use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, Path, Token, LitStr,
+    Attribute, Data, DeriveInput, LitStr, Path, Token,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -115,6 +115,7 @@ impl Parse for KindedAttributes {
                 let case_lit_str: LitStr = input.parse()?;
                 let case = match case_lit_str.value().as_ref() {
                     "snake_case" => DisplayCase::SnakeCase,
+                    "camelCase" => DisplayCase::CamelCase,
                     _ => {
                         let msg = format!("Unknown case for Display: {}", case_lit_str.value());
                         return Err(syn::Error::new(case_lit_str.span(), msg));

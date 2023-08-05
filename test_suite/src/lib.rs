@@ -108,14 +108,25 @@ mod kind_enum {
             }
 
             #[test]
-            fn should_handle_lowercase() {
+            fn should_handle_snake_case() {
                 #[derive(kinded::Kinded)]
                 #[kinded(display = "snake_case")]
                 enum Drink {
-                    HotMate
+                    HotMate,
                 }
 
                 assert_eq!(DrinkKind::HotMate.to_string(), "hot_mate")
+            }
+
+            #[test]
+            fn should_handle_camel_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "camelCase")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hotMate")
             }
         }
     }
