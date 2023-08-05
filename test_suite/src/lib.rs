@@ -150,6 +150,17 @@ mod kind_enum {
 
                 assert_eq!(DrinkKind::HotMate.to_string(), "HOT_MATE")
             }
+
+            #[test]
+            fn should_handle_kebab_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "kebab-case")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hot-mate")
+            }
         }
     }
 

@@ -118,12 +118,14 @@ impl Parse for KindedAttributes {
                     "camelCase" => DisplayCase::CamelCase,
                     "PascalCase" => DisplayCase::PascalCase,
                     "SCREAMING_SNAKE_CASE" => DisplayCase::ScreamingSnakeCase,
+                    "kebab-case" => DisplayCase::KebabCase,
                     _ => {
                         let valid_values = [
                             "snake_case",
                             "camelCase",
                             "PascalCase",
                             "SCREAMING_SNAKE_CASE",
+                            "kebab-case",
                         ]
                         .map(|value| format!(r#""{value}""#))
                         .join(", ");
