@@ -1,11 +1,11 @@
-use crate::models::{FieldsType, KindedAttributes, Meta, Variant};
+use crate::models::{FieldsType, KindedAttributes, Meta, Variant, DisplayCase};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, Path, Token,
+    Attribute, Data, DeriveInput, Path, Token, LitStr,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -106,6 +106,22 @@ impl Parse for KindedAttributes {
                 let traits: Vec<Path> = parsed_traits.into_iter().collect();
                 if kinded_attrs.derive.is_none() {
                     kinded_attrs.derive = Some(traits);
+                } else {
+                    let msg = format!("Duplicated attribute: {attr_name}");
+                    return Err(syn::Error::new(attr_name.span(), msg));
+                }
+            } else if attr_name == "display" {
+                let _: Token!(=) = input.parse()?;
+                let case_lit_str: LitStr = input.parse()?;
+                let case = match case_lit_str.value().as_ref() {
+                    "snake_case" => DisplayCase::SnakeCase,
+                    _ => {
+                        let msg = format!("Unknown case for Display: {}", case_lit_str.value());
+                        return Err(syn::Error::new(case_lit_str.span(), msg));
+                    }
+                };
+                if kinded_attrs.derive.is_none() {
+                    kinded_attrs.display = Some(case);
                 } else {
                     let msg = format!("Duplicated attribute: {attr_name}");
                     return Err(syn::Error::new(attr_name.span(), msg));

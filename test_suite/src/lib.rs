@@ -106,6 +106,17 @@ mod kind_enum {
                 let user = RoleKind::User;
                 assert_eq!(format!("{user}"), "User");
             }
+
+            #[test]
+            fn should_handle_lowercase() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "snake_case")]
+                enum Drink {
+                    HotMate
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hot_mate")
+            }
         }
     }
 

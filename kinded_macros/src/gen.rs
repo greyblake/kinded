@@ -1,4 +1,4 @@
-use crate::models::{FieldsType, Meta, Variant};
+use crate::models::{FieldsType, Meta, Variant, DisplayCase};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
@@ -68,11 +68,14 @@ fn gen_enum_kind(meta: &Meta) -> TokenStream {
 
 fn gen_impl_display_for_enum_kind(meta: &Meta) -> TokenStream {
     let kind_name = meta.kind_name();
+    let maybe_case = meta.kinded_attrs.display;
+
     let match_branches = meta.variants.iter().map(|variant| {
-        let variant_name_str = variant.ident.to_string();
+        let original_variant_name_str = variant.ident.to_string();
+        let cased_variant_name = apply_display_case(original_variant_name_str, maybe_case);
         let variant_name = &variant.ident;
         quote!(
-            #kind_name::#variant_name => write!(f, #variant_name_str)
+            #kind_name::#variant_name => write!(f, #cased_variant_name)
         )
     });
 
@@ -85,6 +88,17 @@ fn gen_impl_display_for_enum_kind(meta: &Meta) -> TokenStream {
             }
         }
     )
+}
+
+fn apply_display_case(original: String, maybe_display_case: Option<DisplayCase>) -> String {
+    use convert_case::{Case, Casing};
+
+    if let Some(display_case) = maybe_display_case {
+        let case: Case = display_case.into();
+        original.to_case(case)
+    } else {
+        original
+    }
 }
 
 fn gen_fn_kind(meta: &Meta) -> TokenStream {

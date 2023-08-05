@@ -77,4 +77,23 @@ pub struct KindedAttributes {
 
     /// Traits to derive, specified with `derive(...)`
     pub derive: Option<Vec<Path>>,
+
+    /// Attributes to customize implementation for Display trait
+    pub display: Option<DisplayCase>
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum DisplayCase {
+    /// snake_case
+    SnakeCase
+}
+
+impl From<DisplayCase> for convert_case::Case {
+    fn from(display_case: DisplayCase) -> convert_case::Case {
+        use convert_case::Case;
+
+        match display_case {
+            DisplayCase::SnakeCase => Case::Snake,
+        }
+    }
 }
