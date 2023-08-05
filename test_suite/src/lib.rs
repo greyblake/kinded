@@ -222,6 +222,54 @@ mod kind_enum {
                 let kind: MateKind = "HotMate".parse().unwrap();
                 assert_eq!(kind, MateKind::HotMate);
             }
+
+            #[test]
+            fn should_parse_alternative_cases() {
+                // All possible alternatives of HoteMate
+                let hot_mate_alternatives = [
+                    "hot_mate", // snake_case
+                    "hotMate",  // camelCase
+                    "HotMate",  // PascalCase
+                    "HOT_MATE", // SCREAMING_SNAKE_CASE
+                    "hot-mate", // kebab-case
+                    "HOT-MATE", // SCREAMING-KEBAB-CASE
+                    "Hot Mate", // Title Case
+                    "hotmate",  // lowercase
+                    "HOTMATE",  // UPPERCASE
+                ];
+                for alt in hot_mate_alternatives {
+                    let kind: MateKind = alt.parse().unwrap();
+                    assert_eq!(kind, MateKind::HotMate);
+                }
+
+                // Just a few alternatives of Terere
+                let terere_alternatives = ["terere", "TERERE", "Terere"];
+                for alt in terere_alternatives {
+                    let kind: MateKind = alt.parse().unwrap();
+                    assert_eq!(kind, MateKind::Terere);
+                }
+            }
+
+            #[test]
+            fn should_return_error_on_failure() {
+                let error: kinded::ParseKindError = "Calabaza".parse::<MateKind>().unwrap_err();
+                assert_eq!(
+                    error.to_string(),
+                    r#"Failed to parse "Calabaza" as MateKind"#
+                );
+            }
+
+            #[test]
+            fn should_distinguish_very_similar_abbreviations() {
+                #[derive(kinded::Kinded)]
+                enum Db {
+                    MySql,
+                    MySQL,
+                }
+
+                assert_eq!("MySql".parse::<DbKind>().unwrap(), DbKind::MySql);
+                assert_eq!("MySQL".parse::<DbKind>().unwrap(), DbKind::MySQL);
+            }
         }
     }
 
