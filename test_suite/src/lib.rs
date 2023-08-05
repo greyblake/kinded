@@ -108,7 +108,7 @@ mod kind_enum {
             }
 
             #[test]
-            fn should_handle_snake_case() {
+            fn should_display_snake_case() {
                 #[derive(kinded::Kinded)]
                 #[kinded(display = "snake_case")]
                 enum Drink {
@@ -119,7 +119,7 @@ mod kind_enum {
             }
 
             #[test]
-            fn should_handle_camel_case() {
+            fn should_display_camel_case() {
                 #[derive(kinded::Kinded)]
                 #[kinded(display = "camelCase")]
                 enum Drink {
@@ -130,7 +130,7 @@ mod kind_enum {
             }
 
             #[test]
-            fn should_handle_pascal_case() {
+            fn should_display_pascal_case() {
                 #[derive(kinded::Kinded)]
                 #[kinded(display = "PascalCase")]
                 enum Drink {
@@ -141,7 +141,7 @@ mod kind_enum {
             }
 
             #[test]
-            fn should_handle_screaming_snake_case() {
+            fn should_display_screaming_snake_case() {
                 #[derive(kinded::Kinded)]
                 #[kinded(display = "SCREAMING_SNAKE_CASE")]
                 enum Drink {
@@ -152,7 +152,7 @@ mod kind_enum {
             }
 
             #[test]
-            fn should_handle_kebab_case() {
+            fn should_display_kebab_case() {
                 #[derive(kinded::Kinded)]
                 #[kinded(display = "kebab-case")]
                 enum Drink {
@@ -160,6 +160,28 @@ mod kind_enum {
                 }
 
                 assert_eq!(DrinkKind::HotMate.to_string(), "hot-mate")
+            }
+
+            #[test]
+            fn should_display_screaming_kebab_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "SCREAMING-KEBAB-CASE")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HOT-MATE")
+            }
+
+            #[test]
+            fn should_display_title_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "Title Case")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "Hot Mate")
             }
         }
     }

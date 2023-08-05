@@ -98,6 +98,12 @@ pub enum DisplayCase {
 
     /// kebab-case
     KebabCase,
+
+    /// SCREAMING-KEBAB-CASE
+    ScreamingKebabCase,
+
+    /// Title Case
+    TitleCase,
 }
 
 impl From<DisplayCase> for convert_case::Case {
@@ -110,6 +116,8 @@ impl From<DisplayCase> for convert_case::Case {
             DisplayCase::PascalCase => Case::Pascal,
             DisplayCase::ScreamingSnakeCase => Case::ScreamingSnake,
             DisplayCase::KebabCase => Case::Kebab,
+            DisplayCase::ScreamingKebabCase => Case::Cobol,
+            DisplayCase::TitleCase => Case::Title,
         }
     }
 }
