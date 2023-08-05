@@ -14,23 +14,6 @@ pub(crate) mod parse;
 use proc_macro2::TokenStream;
 use syn::DeriveInput;
 
-// DONE:
-// * Allow renaming of kind type
-// * Allow to derive custom traits
-
-// TODO:
-// * Extract test_suite
-// * Make it work with generics
-// * Consider supporting FromStr / Display?
-// * Allow to iterate, access ALL variants of Kind
-// * Features:
-//   * enum-map
-// * Write documentation
-//   * lib.rs
-//   * README
-//   * How it differs from enum-kinds ?
-//
-
 #[proc_macro_derive(Kinded, attributes(kinded))]
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     expand_derive(input)

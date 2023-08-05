@@ -125,6 +125,7 @@ impl From<DisplayCase> for convert_case::Case {
     fn from(display_case: DisplayCase) -> convert_case::Case {
         use convert_case::Case;
 
+        // Note that convert_case use slightly different names than serde.
         match display_case {
             DisplayCase::Snake => Case::Snake,
             DisplayCase::Camel => Case::Camel,
@@ -136,5 +137,29 @@ impl From<DisplayCase> for convert_case::Case {
             DisplayCase::Lower => Case::Flat,
             DisplayCase::Upper => Case::UpperFlat,
         }
+    }
+}
+
+impl DisplayCase {
+    pub fn all() -> impl Iterator<Item = Self> {
+        use DisplayCase::*;
+        [
+            Snake,
+            Camel,
+            Pascal,
+            ScreamingSnake,
+            Kebab,
+            ScreamingKebab,
+            Title,
+            Lower,
+            Upper,
+        ]
+        .into_iter()
+    }
+
+    pub fn apply(self, s: &str) -> String {
+        use convert_case::{Case, Casing};
+        let case: Case = self.into();
+        s.to_case(case)
     }
 }

@@ -94,7 +94,7 @@ enum Drink {
 
 ### Derive traits
 
-By default the kind type implements the following traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `Display`, `From<T>`, `From<&T>`.
+By default the kind type implements the following traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `Display`, `FromStr`, `From<T>`, `From<&T>`.
 
 Extra traits can be derived with `derive(..)` attribute:
 
@@ -114,7 +114,7 @@ let mut drink_kinds = HashSet::new();
 drink_kinds.insert(DrinkKind::Mate);
 ```
 
-### Customize Display trait
+### Display trait
 
 Implementation of `Display` trait can be customized in the `serde` fashion:
 
@@ -133,6 +133,31 @@ assert_eq!(tea.to_string(), "very_hot_black_tea");
 ```
 
 The possible values are `"snake_case"`, `"camelCase"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"kebab-case"`, `"SCREAMING-KEBAB-CASE"`, `"Title Case"`, `"lowercase"`, `"UPPERCASE"`.
+
+### FromStr trait
+
+The kind type implements `FromStr` trait. The implementation tries it's best to parse, checking all the possible cases mentioned above.
+
+```rs
+use kinded::Kinded;
+
+#[derive(Kinded)]
+#[kinded(display = "snake_case")]
+enum Drink {
+    VeryHotBlackTea,
+    Milk { fat: f64 },
+}
+
+assert_eq!(
+    "VERY_HOT_BLACK_TEA".parse::<DrinkKind>().unwrap(),
+    DrinkKind::VeryHotBlackTea
+);
+
+assert_eq!(
+    "veryhotblacktea".parse::<DrinkKind>().unwrap(),
+    DrinkKind::VeryHotBlackTea
+);
+```
 
 
 ## A note about enum-kinds

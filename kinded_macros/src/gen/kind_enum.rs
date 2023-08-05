@@ -6,11 +6,13 @@ pub fn gen_kind_enum(meta: &Meta) -> TokenStream {
     let kind_enum_definition = gen_definition(meta);
     let impl_from_traits = gen_impl_from_traits(meta);
     let impl_display_trait = gen_impl_display_trait(meta);
+    let impl_from_str_trait = gen_impl_from_str_trait(meta);
 
     quote!(
         #kind_enum_definition
         #impl_from_traits
         #impl_display_trait
+        #impl_from_str_trait
     )
 }
 
@@ -62,7 +64,7 @@ fn gen_impl_display_trait(meta: &Meta) -> TokenStream {
 
     let match_branches = meta.variants.iter().map(|variant| {
         let original_variant_name_str = variant.ident.to_string();
-        let cased_variant_name = apply_display_case(original_variant_name_str, maybe_case);
+        let cased_variant_name = apply_maybe_case(original_variant_name_str, maybe_case);
         let variant_name = &variant.ident;
         quote!(
             #kind_name::#variant_name => write!(f, #cased_variant_name)
@@ -80,13 +82,52 @@ fn gen_impl_display_trait(meta: &Meta) -> TokenStream {
     )
 }
 
-fn apply_display_case(original: String, maybe_display_case: Option<DisplayCase>) -> String {
-    use convert_case::{Case, Casing};
-
+fn apply_maybe_case(original: String, maybe_display_case: Option<DisplayCase>) -> String {
     if let Some(display_case) = maybe_display_case {
-        let case: Case = display_case.into();
-        original.to_case(case)
+        display_case.apply(&original)
     } else {
         original
     }
+}
+
+fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
+    let kind_name = meta.kind_name();
+
+    let original_match_branches = meta.variants.iter().map(|variant| {
+        let ident = &variant.ident;
+        let name_str = ident.to_string();
+        quote!(#name_str => return Ok(#kind_name::#ident),)
+    });
+
+    let alt_match_branches = meta.variants.iter().map(|variant| {
+        let ident = &variant.ident;
+        let name_str = ident.to_string();
+        let alternatives = DisplayCase::all().map(|case| case.apply(&name_str));
+        quote!(#(#alternatives)|* => return Ok(#kind_name::#ident),)
+    });
+
+    quote!(
+        impl ::core::str::FromStr for #kind_name {
+            type Err = ::kinded::ParseKindError;
+
+            fn from_str(s: &str) -> ::core::result::Result<Self, Self::Err> {
+                // First try to match the variants as they are
+                match s {                                                      // match s {
+                    #(#original_match_branches)*                               //     "HotMate" => Mate::HotMate,
+                    _ => ()                                                    //      _ => (),
+                }                                                              //
+
+                // Now try to match all possible alternative spelling of
+                // the variants
+                match s {                                                      // match s {
+                    #(#alt_match_branches)*                                    //     "hot_mate" | "HOT_MATE" | "hotMate" | .. => Mate::HotMate
+                    _ => ()                                                    //      _ => ()
+                }                                                              // }
+
+                // If still no success, then return an error
+                let error = ::kinded::ParseKindError::from_type_and_string::<#kind_name>(s.to_owned());
+                Err(error)
+            }
+        }
+    )
 }

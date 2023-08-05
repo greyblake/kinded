@@ -141,6 +141,31 @@
 //! assert_eq!(tea.to_string(), "very_hot_black_tea");
 //! ```
 //!
+//! ### FromStr trait
+//!
+//! The kind type implements `FromStr` trait. The implementation tries it's best to parse, checking all the possible cases mentioned above.
+//!
+//! ```
+//! use kinded::Kinded;
+//!
+//! #[derive(Kinded)]
+//! #[kinded(display = "snake_case")]
+//! enum Drink {
+//!     VeryHotBlackTea,
+//!     Milk { fat: f64 },
+//! }
+//!
+//! assert_eq!(
+//!     "VERY_HOT_BLACK_TEA".parse::<DrinkKind>().unwrap(),
+//!     DrinkKind::VeryHotBlackTea
+//! );
+//!
+//! assert_eq!(
+//!     "veryhotblacktea".parse::<DrinkKind>().unwrap(),
+//!     DrinkKind::VeryHotBlackTea
+//! );
+//! ```
+//!
 //! The possible values are `"snake_case"`, `"camelCase"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"kebab-case"`, `"SCREAMING-KEBAB-CASE"`, `"Title Case"`, `"lowercase"`, `"UPPERCASE"`.
 //!
 //! ## A note about the war in Ukraine 🇺🇦
