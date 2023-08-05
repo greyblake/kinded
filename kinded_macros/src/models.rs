@@ -77,4 +77,57 @@ pub struct KindedAttributes {
 
     /// Traits to derive, specified with `derive(...)`
     pub derive: Option<Vec<Path>>,
+
+    /// Attributes to customize implementation for Display trait
+    pub display: Option<DisplayCase>,
+}
+
+/// This uses the same names as serde + "Title Case" variant.
+/// Some names are different from what `convert_case` crate uses.
+#[derive(Debug, Clone, Copy)]
+pub enum DisplayCase {
+    /// snake_case
+    Snake,
+
+    /// camelCase
+    Camel,
+
+    /// PascalCase
+    Pascal,
+
+    /// SCREAMING_SNAKE_CASE
+    ScreamingSnake,
+
+    /// kebab-case
+    Kebab,
+
+    /// SCREAMING-KEBAB-CASE
+    ScreamingKebab,
+
+    /// Title Case
+    Title,
+
+    /// lowercase
+    Lower,
+
+    /// UPPERCASE
+    Upper,
+}
+
+impl From<DisplayCase> for convert_case::Case {
+    fn from(display_case: DisplayCase) -> convert_case::Case {
+        use convert_case::Case;
+
+        match display_case {
+            DisplayCase::Snake => Case::Snake,
+            DisplayCase::Camel => Case::Camel,
+            DisplayCase::Pascal => Case::Pascal,
+            DisplayCase::ScreamingSnake => Case::ScreamingSnake,
+            DisplayCase::Kebab => Case::Kebab,
+            DisplayCase::ScreamingKebab => Case::Cobol,
+            DisplayCase::Title => Case::Title,
+            DisplayCase::Lower => Case::Flat,
+            DisplayCase::Upper => Case::UpperFlat,
+        }
+    }
 }

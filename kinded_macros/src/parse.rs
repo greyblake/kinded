@@ -1,11 +1,11 @@
-use crate::models::{FieldsType, KindedAttributes, Meta, Variant};
+use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, Path, Token,
+    Attribute, Data, DeriveInput, LitStr, Path, Token,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -106,6 +106,44 @@ impl Parse for KindedAttributes {
                 let traits: Vec<Path> = parsed_traits.into_iter().collect();
                 if kinded_attrs.derive.is_none() {
                     kinded_attrs.derive = Some(traits);
+                } else {
+                    let msg = format!("Duplicated attribute: {attr_name}");
+                    return Err(syn::Error::new(attr_name.span(), msg));
+                }
+            } else if attr_name == "display" {
+                let _: Token!(=) = input.parse()?;
+                let case_lit_str: LitStr = input.parse()?;
+                let case = match case_lit_str.value().as_ref() {
+                    "snake_case" => DisplayCase::Snake,
+                    "camelCase" => DisplayCase::Camel,
+                    "PascalCase" => DisplayCase::Pascal,
+                    "SCREAMING_SNAKE_CASE" => DisplayCase::ScreamingSnake,
+                    "kebab-case" => DisplayCase::Kebab,
+                    "SCREAMING-KEBAB-CASE" => DisplayCase::ScreamingKebab,
+                    "Title Case" => DisplayCase::Title,
+                    "lowercase" => DisplayCase::Lower,
+                    "UPPERCASE" => DisplayCase::Upper,
+                    _ => {
+                        let valid_values = [
+                            "snake_case",
+                            "camelCase",
+                            "PascalCase",
+                            "SCREAMING_SNAKE_CASE",
+                            "kebab-case",
+                            "SCREAMING-KEBAB-CASE",
+                            "Title Case",
+                            "lowercase",
+                            "UPPERCASE",
+                        ]
+                        .map(|value| format!(r#""{value}""#))
+                        .join(", ");
+                        let given_value = format!(r#""{}""#, case_lit_str.value());
+                        let msg = format!("Invalid value for display: {given_value}\nValid values are: {valid_values}");
+                        return Err(syn::Error::new(case_lit_str.span(), msg));
+                    }
+                };
+                if kinded_attrs.derive.is_none() {
+                    kinded_attrs.display = Some(case);
                 } else {
                     let msg = format!("Duplicated attribute: {attr_name}");
                     return Err(syn::Error::new(attr_name.span(), msg));

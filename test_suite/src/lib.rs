@@ -94,6 +94,118 @@ mod kind_enum {
             let guest = Role::Guest;
             assert_eq!(RoleKind::from(&guest), RoleKind::Guest);
         }
+
+        mod display {
+            use super::RoleKind;
+
+            #[test]
+            fn should_implement_display() {
+                let guest = RoleKind::Guest;
+                assert_eq!(format!("{guest}"), "Guest");
+
+                let user = RoleKind::User;
+                assert_eq!(format!("{user}"), "User");
+            }
+
+            #[test]
+            fn should_display_snake_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "snake_case")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hot_mate")
+            }
+
+            #[test]
+            fn should_display_camel_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "camelCase")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hotMate")
+            }
+
+            #[test]
+            fn should_display_pascal_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "PascalCase")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HotMate")
+            }
+
+            #[test]
+            fn should_display_screaming_snake_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "SCREAMING_SNAKE_CASE")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HOT_MATE")
+            }
+
+            #[test]
+            fn should_display_kebab_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "kebab-case")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hot-mate")
+            }
+
+            #[test]
+            fn should_display_screaming_kebab_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "SCREAMING-KEBAB-CASE")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HOT-MATE")
+            }
+
+            #[test]
+            fn should_display_title_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "Title Case")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "Hot Mate")
+            }
+
+            #[test]
+            fn should_display_lower_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "lowercase")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hotmate")
+            }
+
+            #[test]
+            fn should_display_upper_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "UPPERCASE")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HOTMATE")
+            }
+        }
     }
 
     #[test]
