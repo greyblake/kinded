@@ -94,6 +94,19 @@ mod kind_enum {
             let guest = Role::Guest;
             assert_eq!(RoleKind::from(&guest), RoleKind::Guest);
         }
+
+        mod display {
+            use super::RoleKind;
+
+            #[test]
+            fn should_implement_display() {
+                let guest = RoleKind::Guest;
+                assert_eq!(format!("{guest}"), "Guest");
+
+                let user = RoleKind::User;
+                assert_eq!(format!("{user}"), "User");
+            }
+        }
     }
 
     #[test]

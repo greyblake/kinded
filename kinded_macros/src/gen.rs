@@ -4,6 +4,8 @@ use quote::quote;
 
 pub fn generate(meta: Meta) -> TokenStream {
     let enum_kind = gen_enum_kind(&meta);
+    let impl_display_for_enum_kind = gen_impl_display_for_enum_kind(&meta);
+
     let fn_kind = gen_fn_kind(&meta);
     let type_name = &meta.ident;
     let kind_name = meta.kind_name();
@@ -13,6 +15,8 @@ pub fn generate(meta: Meta) -> TokenStream {
 
     quote!(
         #enum_kind                                                             // enum DrinkKind { Mate, Coffee, Tea }
+
+        #impl_display_for_enum_kind                                            // impl std::fmt::Display for DrinkKind { ... }
 
         impl #generics #type_with_generics {                                   // impl<T> Drink<T> {
             #fn_kind                                                           //     fn kind(&self) -> DrinkKind { ... }
@@ -59,6 +63,27 @@ fn gen_enum_kind(meta: &Meta) -> TokenStream {
                 ].into_iter()                                                  //         ]
             }                                                                  //     }
         }                                                                      // }
+    )
+}
+
+fn gen_impl_display_for_enum_kind(meta: &Meta) -> TokenStream {
+    let kind_name = meta.kind_name();
+    let match_branches = meta.variants.iter().map(|variant| {
+        let variant_name_str = variant.ident.to_string();
+        let variant_name = &variant.ident;
+        quote!(
+            #kind_name::#variant_name => write!(f, #variant_name_str)
+        )
+    });
+
+    quote!(
+        impl std::fmt::Display for #kind_name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match self {
+                    #(#match_branches),*
+                }
+            }
+        }
     )
 }
 
