@@ -164,11 +164,9 @@
 //!
 //! MIT © [Serhii Potapov](https://www.greyblake.com)
 
+mod errors;
+mod traits;
+
+pub use errors::ParseKindError;
 pub use kinded_macros::Kinded;
-use std::fmt::Debug;
-
-pub trait Kinded {
-    type Kind: PartialEq + Eq + Debug + Clone + Copy;
-
-    fn kind(&self) -> Self::Kind;
-}
+pub use traits::Kinded;

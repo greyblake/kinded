@@ -95,7 +95,7 @@ mod kind_enum {
             assert_eq!(RoleKind::from(&guest), RoleKind::Guest);
         }
 
-        mod display {
+        mod display_trait {
             use super::RoleKind;
 
             #[test]
@@ -205,6 +205,20 @@ mod kind_enum {
 
                 assert_eq!(DrinkKind::HotMate.to_string(), "HOTMATE")
             }
+        }
+
+        mod from_str_trait {
+            #[derive(kinded::Kinded)]
+            enum Mate {
+                HotMate,
+                Terere,
+            }
+
+            // #[test]
+            // fn should_implement_from_str_trait() {
+            //     let kind: MateKind = "Terere".parse().unwrap();
+            //     assert_eq!(kind, MateKind::Terere);
+            // }
         }
     }
 
