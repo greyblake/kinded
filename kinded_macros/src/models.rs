@@ -1,5 +1,5 @@
-use proc_macro2::Ident;
-use quote::format_ident;
+use proc_macro2::{Ident, TokenStream};
+use quote::{format_ident, quote};
 use syn::{Generics, Path, Visibility};
 
 #[derive(Debug)]
@@ -47,6 +47,13 @@ impl Meta {
         }
 
         traits
+    }
+
+    pub fn main_enum_with_generics(&self) -> TokenStream {
+        let type_name = &self.ident;
+        let generics = &self.generics;
+
+        quote!(#type_name #generics)
     }
 }
 
