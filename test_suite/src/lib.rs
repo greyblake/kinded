@@ -214,11 +214,14 @@ mod kind_enum {
                 Terere,
             }
 
-            // #[test]
-            // fn should_implement_from_str_trait() {
-            //     let kind: MateKind = "Terere".parse().unwrap();
-            //     assert_eq!(kind, MateKind::Terere);
-            // }
+            #[test]
+            fn should_implement_from_str_trait() {
+                let kind: MateKind = "Terere".parse().unwrap();
+                assert_eq!(kind, MateKind::Terere);
+
+                let kind: MateKind = "HotMate".parse().unwrap();
+                assert_eq!(kind, MateKind::HotMate);
+            }
         }
     }
 

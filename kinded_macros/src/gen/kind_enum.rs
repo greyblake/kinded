@@ -6,11 +6,13 @@ pub fn gen_kind_enum(meta: &Meta) -> TokenStream {
     let kind_enum_definition = gen_definition(meta);
     let impl_from_traits = gen_impl_from_traits(meta);
     let impl_display_trait = gen_impl_display_trait(meta);
+    let impl_from_str_trait = gen_impl_from_str_trait(meta);
 
     quote!(
         #kind_enum_definition
         #impl_from_traits
         #impl_display_trait
+        #impl_from_str_trait
     )
 }
 
@@ -89,4 +91,31 @@ fn apply_display_case(original: String, maybe_display_case: Option<DisplayCase>)
     } else {
         original
     }
+}
+
+fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
+    let kind_name = meta.kind_name();
+
+    let original_match_branches = meta.variants.iter().map(|variant| {
+        let ident = &variant.ident;
+        let name_str = ident.to_string();
+        quote!(#name_str => Ok(#kind_name::#ident),)
+    });
+
+    quote!(
+        impl ::core::str::FromStr for #kind_name {
+            type Err = ::kinded::ParseKindError;
+
+            fn from_str(s: &str) -> ::core::result::Result<Self, Self::Err> {
+                match s {
+                    #(#original_match_branches)*
+                    _ => {
+                        let type_name: String = std::any::type_name::<#kind_name>().to_owned();
+                        let error = ::kinded::ParseKindError::from_type_name_and_string(type_name, s.to_owned());
+                        Err(error)
+                    },
+                }
+            }
+        }
+    )
 }
