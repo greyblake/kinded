@@ -183,6 +183,28 @@ mod kind_enum {
 
                 assert_eq!(DrinkKind::HotMate.to_string(), "Hot Mate")
             }
+
+            #[test]
+            fn should_display_lower_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "lowercase")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "hotmate")
+            }
+
+            #[test]
+            fn should_display_upper_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "UPPERCASE")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HOTMATE")
+            }
         }
     }
 

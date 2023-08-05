@@ -123,14 +123,25 @@
 //! drink_kinds.insert(DrinkKind::Mate);
 //! ```
 //!
-//! ## A note about enum-kinds
+//! ### Customize Display trait
 //!
-//! There is a very similar crate [enum-kinds](https://github.com/Soft/enum-kinds) that does almost the same job.
+//! Implementation of `Display` trait can be customized in the `serde` fashion:
 //!
-//! The main difference between `kinded` and `enum-kinds` crate is that `kinded` provides the `Kinded` trait, on top of which
-//! users can implement abstract functions and use them with different enum types.
+//! ```
+//! use kinded::Kinded;
 //!
-//! Another minor difference is that apart from `From<T>` and `From<&T>` conversions, `kidned` also implements `kind()` function on the enum type.
+//! #[derive(Kinded)]
+//! #[kinded(display = "snake_case")]
+//! enum Drink {
+//!     VeryHotBlackTea,
+//!     Milk { fat: f64 },
+//! }
+//!
+//! let tea = DrinkKind::VeryHotBlackTea;
+//! assert_eq!(tea.to_string(), "very_hot_black_tea");
+//! ```
+//!
+//! The possible values are `"snake_case"`, `"camelCase"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"kebab-case"`, `"SCREAMING-KEBAB-CASE"`, `"Title Case"`, `"lowercase"`, `"UPPERCASE"`.
 //!
 //! ## A note about the war in Ukraine 🇺🇦
 //!

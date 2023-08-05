@@ -94,7 +94,7 @@ enum Drink {
 
 ### Derive traits
 
-By default the kind type implements the following traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `From<T>`, `From<&T>`.
+By default the kind type implements the following traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `Display`, `From<T>`, `From<&T>`.
 
 Extra traits can be derived with `derive(..)` attribute:
 
@@ -114,14 +114,35 @@ let mut drink_kinds = HashSet::new();
 drink_kinds.insert(DrinkKind::Mate);
 ```
 
+### Customize Display trait
+
+Implementation of `Display` trait can be customized in the `serde` fashion:
+
+```rs
+use kinded::Kinded;
+
+#[derive(Kinded)]
+#[kinded(display = "snake_case")]
+enum Drink {
+    VeryHotBlackTea,
+    Milk { fat: f64 },
+}
+
+let tea = DrinkKind::VeryHotBlackTea;
+assert_eq!(tea.to_string(), "very_hot_black_tea");
+```
+
+The possible values are `"snake_case"`, `"camelCase"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"kebab-case"`, `"SCREAMING-KEBAB-CASE"`, `"Title Case"`, `"lowercase"`, `"UPPERCASE"`.
+
+
 ## A note about enum-kinds
 
 There is a very similar crate [enum-kinds](https://github.com/Soft/enum-kinds) that does almost the same job.
 
-The main difference between `kinded` and `enum-kinds` crate is that `kinded` provides the `Kinded` trait, on top of which
-users can implement abstract functions and use them with different enum types.
-
-Another minor difference is that apart from `From<T>` and `From<&T>` conversions, `kidned` also implements `kind()` function on the enum type.
+Here is what makes `kinded` different:
+* It provides `Kinded` trait, on top of which users can build abstractions.
+* Generates customizable implementation of `Display` trait.
+* Generates `kind()` function to extra ergonomics.
 
 ## A note about the war in Ukraine 🇺🇦
 

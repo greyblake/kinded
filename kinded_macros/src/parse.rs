@@ -114,13 +114,15 @@ impl Parse for KindedAttributes {
                 let _: Token!(=) = input.parse()?;
                 let case_lit_str: LitStr = input.parse()?;
                 let case = match case_lit_str.value().as_ref() {
-                    "snake_case" => DisplayCase::SnakeCase,
-                    "camelCase" => DisplayCase::CamelCase,
-                    "PascalCase" => DisplayCase::PascalCase,
-                    "SCREAMING_SNAKE_CASE" => DisplayCase::ScreamingSnakeCase,
-                    "kebab-case" => DisplayCase::KebabCase,
-                    "SCREAMING-KEBAB-CASE" => DisplayCase::ScreamingKebabCase,
-                    "Title Case" => DisplayCase::TitleCase,
+                    "snake_case" => DisplayCase::Snake,
+                    "camelCase" => DisplayCase::Camel,
+                    "PascalCase" => DisplayCase::Pascal,
+                    "SCREAMING_SNAKE_CASE" => DisplayCase::ScreamingSnake,
+                    "kebab-case" => DisplayCase::Kebab,
+                    "SCREAMING-KEBAB-CASE" => DisplayCase::ScreamingKebab,
+                    "Title Case" => DisplayCase::Title,
+                    "lowercase" => DisplayCase::Lower,
+                    "UPPERCASE" => DisplayCase::Upper,
                     _ => {
                         let valid_values = [
                             "snake_case",
@@ -130,6 +132,8 @@ impl Parse for KindedAttributes {
                             "kebab-case",
                             "SCREAMING-KEBAB-CASE",
                             "Title Case",
+                            "lowercase",
+                            "UPPERCASE",
                         ]
                         .map(|value| format!(r#""{value}""#))
                         .join(", ");

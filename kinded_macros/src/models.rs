@@ -82,28 +82,36 @@ pub struct KindedAttributes {
     pub display: Option<DisplayCase>,
 }
 
+/// This uses the same names as serde + "Title Case" variant.
+/// Some names are different from what `convert_case` crate uses.
 #[derive(Debug, Clone, Copy)]
 pub enum DisplayCase {
     /// snake_case
-    SnakeCase,
+    Snake,
 
     /// camelCase
-    CamelCase,
+    Camel,
 
     /// PascalCase
-    PascalCase,
+    Pascal,
 
     /// SCREAMING_SNAKE_CASE
-    ScreamingSnakeCase,
+    ScreamingSnake,
 
     /// kebab-case
-    KebabCase,
+    Kebab,
 
     /// SCREAMING-KEBAB-CASE
-    ScreamingKebabCase,
+    ScreamingKebab,
 
     /// Title Case
-    TitleCase,
+    Title,
+
+    /// lowercase
+    Lower,
+
+    /// UPPERCASE
+    Upper,
 }
 
 impl From<DisplayCase> for convert_case::Case {
@@ -111,13 +119,15 @@ impl From<DisplayCase> for convert_case::Case {
         use convert_case::Case;
 
         match display_case {
-            DisplayCase::SnakeCase => Case::Snake,
-            DisplayCase::CamelCase => Case::Camel,
-            DisplayCase::PascalCase => Case::Pascal,
-            DisplayCase::ScreamingSnakeCase => Case::ScreamingSnake,
-            DisplayCase::KebabCase => Case::Kebab,
-            DisplayCase::ScreamingKebabCase => Case::Cobol,
-            DisplayCase::TitleCase => Case::Title,
+            DisplayCase::Snake => Case::Snake,
+            DisplayCase::Camel => Case::Camel,
+            DisplayCase::Pascal => Case::Pascal,
+            DisplayCase::ScreamingSnake => Case::ScreamingSnake,
+            DisplayCase::Kebab => Case::Kebab,
+            DisplayCase::ScreamingKebab => Case::Cobol,
+            DisplayCase::Title => Case::Title,
+            DisplayCase::Lower => Case::Flat,
+            DisplayCase::Upper => Case::UpperFlat,
         }
     }
 }
