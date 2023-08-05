@@ -167,6 +167,7 @@ There is a very similar crate [enum-kinds](https://github.com/Soft/enum-kinds) t
 Here is what makes `kinded` different:
 * It provides `Kinded` trait, on top of which users can build abstractions.
 * Generates customizable implementation of `Display` trait.
+* Generates implementation of `FromStr` trait.
 * Generates `kind()` function to extra ergonomics.
 
 ## A note about the war in Ukraine 🇺🇦
