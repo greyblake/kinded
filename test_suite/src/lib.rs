@@ -128,6 +128,16 @@ mod kind_enum {
 
                 assert_eq!(DrinkKind::HotMate.to_string(), "hotMate")
             }
+
+            #[test]
+            fn should_handle_pascal_case() {
+                #[derive(kinded::Kinded)]
+                #[kinded(display = "PascalCase")]
+                enum Drink {
+                    HotMate,
+                }
+
+                assert_eq!(DrinkKind::HotMate.to_string(), "HotMate") }
         }
     }
 

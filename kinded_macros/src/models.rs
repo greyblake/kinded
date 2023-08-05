@@ -89,6 +89,9 @@ pub enum DisplayCase {
 
     /// camelCase
     CamelCase,
+
+    /// PascalCase
+    PascalCase,
 }
 
 impl From<DisplayCase> for convert_case::Case {
@@ -98,6 +101,7 @@ impl From<DisplayCase> for convert_case::Case {
         match display_case {
             DisplayCase::SnakeCase => Case::Snake,
             DisplayCase::CamelCase => Case::Camel,
+            DisplayCase::PascalCase => Case::Pascal,
         }
     }
 }
