@@ -1,4 +1,4 @@
-## Next version
+## v0.1.1 - 2023-08-06
 * Add `::all()` to the kind type to iterate over all kind variants
 * Generate customizable implementation of `Display` trait
 * Generate implementation of `FromStr` trait
