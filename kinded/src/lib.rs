@@ -192,4 +192,4 @@ mod traits;
 
 pub use errors::ParseKindError;
 pub use kinded_macros::Kinded;
-pub use traits::{Kinded, Kind};
+pub use traits::{Kind, Kinded};

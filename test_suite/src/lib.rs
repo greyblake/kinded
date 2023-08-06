@@ -282,7 +282,10 @@ mod kind_enum {
             #[test]
             fn should_implement_kind_trait() {
                 let kinds = get_all_kinds::<RoleKind>();
-                assert_eq!(kinds, vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin])
+                assert_eq!(
+                    kinds,
+                    vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin]
+                )
             }
         }
     }
