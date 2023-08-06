@@ -61,10 +61,9 @@
 //!
 //! The `Kinded` trait allows to build abstract functions that can be used with different enum types.
 //!
-//! ## Iterating
+//! ## Get all kind variants
 //!
-//! The kind type gets implementation of `::all()` associated function, which returns an iterator over all kind variants.
-//! For example:
+//! The kind type gets implementation of `::all()` associated function, which returns a vector with all kind variants:
 //!
 //! ```
 //! use kinded::Kinded;
@@ -76,8 +75,7 @@
 //!     Tea { variety: String, caffeine: bool }
 //! }
 //!
-//! let all_drink_kinds: Vec<_> = DrinkKind::all().collect();
-//! assert_eq!(all_drink_kinds, vec![DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
+//! assert_eq!(DrinkKind::all(), vec![DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
 //! ```
 //!
 //! ## Attributes
@@ -194,4 +192,4 @@ mod traits;
 
 pub use errors::ParseKindError;
 pub use kinded_macros::Kinded;
-pub use traits::Kinded;
+pub use traits::{Kind, Kinded};

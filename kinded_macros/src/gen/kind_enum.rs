@@ -7,12 +7,14 @@ pub fn gen_kind_enum(meta: &Meta) -> TokenStream {
     let impl_from_traits = gen_impl_from_traits(meta);
     let impl_display_trait = gen_impl_display_trait(meta);
     let impl_from_str_trait = gen_impl_from_str_trait(meta);
+    let impl_kind_trait = gen_impl_kind_trait(meta);
 
     quote!(
         #kind_enum_definition
         #impl_from_traits
         #impl_display_trait
         #impl_from_str_trait
+        #impl_kind_trait
     )
 }
 
@@ -29,10 +31,10 @@ fn gen_definition(meta: &Meta) -> TokenStream {
         }                                                                      // }
 
         impl #kind_name {                                                      // impl DrinkKind {
-            pub fn all() -> impl Iterator<Item = #kind_name> {                 //     pub fn all() -> impl Iterator<Item = DrinkKind> {
-                [                                                              //         [
+            pub fn all() -> Vec<#kind_name> {                                  //     pub fn all() -> Vec<DrinkKind> {
+                vec![                                                          //         vec![
                     #(#kind_name::#variant_names),*                            //             DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea
-                ].into_iter()                                                  //         ]
+                ]                                                              //         ]
             }                                                                  //     }
         }                                                                      // }
     )
@@ -127,6 +129,18 @@ fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
                 // If still no success, then return an error
                 let error = ::kinded::ParseKindError::from_type_and_string::<#kind_name>(s.to_owned());
                 Err(error)
+            }
+        }
+    )
+}
+
+fn gen_impl_kind_trait(meta: &Meta) -> TokenStream {
+    let kind_name = meta.kind_name();
+
+    quote!(
+        impl ::kinded::Kind for #kind_name {
+            fn all() -> Vec<#kind_name> {
+                Self::all()
             }
         }
     )

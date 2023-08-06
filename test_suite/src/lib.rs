@@ -13,7 +13,7 @@ enum Role {
     },
 }
 
-mod base_enum {
+mod main_enum {
     use super::*;
 
     mod fn_kind {
@@ -271,13 +271,29 @@ mod kind_enum {
                 assert_eq!("MySQL".parse::<DbKind>().unwrap(), DbKind::MySQL);
             }
         }
+
+        mod kind_trait {
+            use crate::RoleKind;
+
+            fn get_all_kinds<T: kinded::Kind>() -> Vec<T> {
+                T::all()
+            }
+
+            #[test]
+            fn should_implement_kind_trait() {
+                let kinds = get_all_kinds::<RoleKind>();
+                assert_eq!(
+                    kinds,
+                    vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin]
+                )
+            }
+        }
     }
 
     #[test]
     fn should_provide_all_function_that_returns_iterator() {
-        let kinds: Vec<_> = RoleKind::all().collect();
         assert_eq!(
-            kinds,
+            RoleKind::all(),
             vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin],
         )
     }
