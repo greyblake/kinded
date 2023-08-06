@@ -1,3 +1,6 @@
+## v0.2.0 - 2023-08-06
+* Add `Kind` trait.
+
 ## v0.1.1 - 2023-08-06
 * Add `::all()` to the kind type to iterate over all kind variants
 * Generate customizable implementation of `Display` trait
