@@ -1,6 +1,12 @@
-# Kinded
+<h1 align="center"> Kinded </h1>
+<p align="center">
+<a href="https://github.com/greyblake/kinded/actions/workflows/ci.yml" rel="nofollow"><img src="https://github.com/greyblake/kinded/actions/workflows/ci.yml/badge.svg" alt="Nutype Build Status"></a>
+<a href="https://docs.rs/kinded" rel="nofollow"><img src="https://docs.rs/kinded/badge.svg" alt="Nutype Documentation"></a>
+<a href="https://github.com/greyblake/kinded/discussions"><img src="https://img.shields.io/github/discussions/greyblake/kinded"/></a>
+<p>
 
-Generate Rust enum kind types without boilerplate.
+<p align="center">Generate Rust enum variants without associated data</p>
+
 
 ## Get Started
 
