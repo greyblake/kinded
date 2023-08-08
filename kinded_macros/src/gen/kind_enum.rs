@@ -31,8 +31,8 @@ fn gen_definition(meta: &Meta) -> TokenStream {
         }                                                                      // }
 
         impl #kind_name {                                                      // impl DrinkKind {
-            pub fn all() -> Vec<#kind_name> {                                  //     pub fn all() -> Vec<DrinkKind> {
-                vec![                                                          //         vec![
+            pub fn all() -> &'static [#kind_name] {                            //     pub fn all() -> &'static [DrinkKind] {
+                &[                                                             //         &[
                     #(#kind_name::#variant_names),*                            //             DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea
                 ]                                                              //         ]
             }                                                                  //     }
@@ -139,7 +139,7 @@ fn gen_impl_kind_trait(meta: &Meta) -> TokenStream {
 
     quote!(
         impl ::kinded::Kind for #kind_name {
-            fn all() -> Vec<#kind_name> {
+            fn all() -> &'static [#kind_name] {
                 Self::all()
             }
         }

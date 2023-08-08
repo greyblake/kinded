@@ -275,16 +275,11 @@ mod kind_enum {
         mod kind_trait {
             use crate::RoleKind;
 
-            fn get_all_kinds<T: kinded::Kind>() -> Vec<T> {
-                T::all()
-            }
-
             #[test]
             fn should_implement_kind_trait() {
-                let kinds = get_all_kinds::<RoleKind>();
                 assert_eq!(
-                    kinds,
-                    vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin]
+                    RoleKind::all(),
+                    [RoleKind::Guest, RoleKind::User, RoleKind::Admin]
                 )
             }
         }
@@ -292,10 +287,8 @@ mod kind_enum {
 
     #[test]
     fn should_provide_all_function_that_returns_iterator() {
-        assert_eq!(
-            RoleKind::all(),
-            vec![RoleKind::Guest, RoleKind::User, RoleKind::Admin],
-        )
+        fn impl_iter(_: impl IntoIterator<Item = &'static RoleKind>) {}
+        impl_iter(RoleKind::all());
     }
 }
 
