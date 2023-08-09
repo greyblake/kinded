@@ -73,7 +73,7 @@ The `Kinded` trait allows to build abstract functions that can be used with diff
 The kind type gets implementation of `::all()` associated function, which returns a vector with all kind variants:
 
 ```rs
-assert_eq!(DrinkKind::all(), vec![DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
+assert_eq!(DrinkKind::all(), [DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
 ```
 
 

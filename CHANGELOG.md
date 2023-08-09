@@ -1,3 +1,6 @@
+## v0.3.0 - 2023-08-09
+* Make `::all()` function return an array instead of vector.
+
 ## v0.2.0 - 2023-08-06
 * Add `Kind` trait.
 

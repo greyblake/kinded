@@ -75,7 +75,7 @@
 //!     Tea { variety: String, caffeine: bool }
 //! }
 //!
-//! assert_eq!(DrinkKind::all(), vec![DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
+//! assert_eq!(DrinkKind::all(), [DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
 //! ```
 //!
 //! ## Attributes
