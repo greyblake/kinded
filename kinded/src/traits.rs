@@ -10,6 +10,6 @@ pub trait Kinded {
 }
 
 pub trait Kind: PartialEq + Eq + Debug + Clone + Copy {
-    /// Return a vector with all possible kind variants.
-    fn all() -> Vec<Self>;
+    /// Return a slice with all possible kind variants.
+    fn all() -> &'static [Self];
 }
