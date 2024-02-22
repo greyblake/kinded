@@ -15,5 +15,9 @@ categories = ["data-structures", "rust-patterns"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+no_std = []
+
 [dependencies]
 kinded_macros = { version = "0.3.0", path = "../kinded_macros" }
