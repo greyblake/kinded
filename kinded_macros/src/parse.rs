@@ -2,7 +2,7 @@ use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
-    Attribute, Data, DeriveInput, LitStr, Path, Token, bracketed, parenthesized,
+    Attribute, Data, DeriveInput, LitStr, Meta as SynMeta, Path, Token, bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
 };
@@ -174,6 +174,12 @@ impl Parse for KindedAttributes {
                     let msg = format!("Duplicated attribute: {attr_name}");
                     return Err(syn::Error::new(attr_name.span(), msg));
                 }
+            } else if attr_name == "attrs" {
+                let derive_input;
+                parenthesized!(derive_input in input);
+
+                let parsed_attr = derive_input.parse_terminated(SynMeta::parse, Token![,])?;
+                kinded_attrs.meta_attrs = Some(parsed_attr.into_iter().collect());
             } else {
                 let msg = format!("Unknown attribute: {attr_name}");
                 return Err(syn::Error::new(attr_name.span(), msg));

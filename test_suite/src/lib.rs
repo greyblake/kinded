@@ -5,8 +5,10 @@
 extern crate alloc;
 
 use kinded::Kinded;
+use serde::{Deserialize, Serialize};
 
-#[derive(Kinded)]
+#[derive(Kinded, Serialize, Deserialize)]
+#[kinded(derive(Serialize), attrs(serde(rename_all = "camelCase")))]
 enum Role {
     Guest,
     User(i32),
@@ -293,6 +295,20 @@ mod kind_enum {
                     RoleKind::all(),
                     [RoleKind::Guest, RoleKind::User, RoleKind::Admin]
                 )
+            }
+        }
+
+        mod attributes {
+            use serde_json::json;
+            use crate::RoleKind;
+
+            #[test]
+            fn should_respect_opaque_attr_values() {
+                let value = serde_json::to_value(&RoleKind::Guest)
+                    .unwrap();
+
+                dbg!(&value);
+                assert_eq!(value, json!("guest"));
             }
         }
     }
