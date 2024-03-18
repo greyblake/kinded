@@ -5,7 +5,7 @@ use syn::{
     bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, LitStr, Path, Token,
+    Attribute, Data, DeriveInput, LitStr, Path, Token, Meta as SynMeta,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -148,6 +148,12 @@ impl Parse for KindedAttributes {
                     let msg = format!("Duplicated attribute: {attr_name}");
                     return Err(syn::Error::new(attr_name.span(), msg));
                 }
+            } else if attr_name == "attrs" {
+                let derive_input;
+                parenthesized!(derive_input in input);
+
+                let parsed_attr = derive_input.parse_terminated(SynMeta::parse, Token![,])?;
+                kinded_attrs.attr = Some(parsed_attr.into_iter().collect());
             } else {
                 let msg = format!("Unknown attribute: {attr_name}");
                 return Err(syn::Error::new(attr_name.span(), msg));
