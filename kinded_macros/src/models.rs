@@ -56,10 +56,10 @@ impl Meta {
         quote!(#type_name #generics)
     }
 
-    pub fn derive_attrs(&self) -> Vec<SynMeta> {
-        self.kinded_attrs.attr
+    pub fn meta_attrs(&self) -> Vec<SynMeta> {
+        self.kinded_attrs.meta_attrs
             .clone()
-            .unwrap_or(Vec::new())
+            .unwrap_or_else(|| Vec::new())
     }
 }
 
@@ -94,7 +94,8 @@ pub struct KindedAttributes {
     /// Attributes to customize implementation for Display trait
     pub display: Option<DisplayCase>,
 
-    pub attr: Option<Vec<SynMeta>>,
+    /// Internal meta attributes for attributes like `#[serde(rename_all = "camelCase")]`.
+    pub meta_attrs: Option<Vec<SynMeta>>,
 }
 
 /// This uses the same names as serde + "Title Case" variant.

@@ -153,7 +153,7 @@ impl Parse for KindedAttributes {
                 parenthesized!(derive_input in input);
 
                 let parsed_attr = derive_input.parse_terminated(SynMeta::parse, Token![,])?;
-                kinded_attrs.attr = Some(parsed_attr.into_iter().collect());
+                kinded_attrs.meta_attrs = Some(parsed_attr.into_iter().collect());
             } else {
                 let msg = format!("Unknown attribute: {attr_name}");
                 return Err(syn::Error::new(attr_name.span(), msg));
