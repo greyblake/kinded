@@ -121,6 +121,27 @@
 //! drink_kinds.insert(DrinkKind::Mate);
 //! ```
 //!
+//! ### Generic attributes
+//!
+//! If you're using derive traits from other libraries like Serde or Sqlx, you might want to add
+//! extra attributes specific to those libraries. You can add these by using the `attrs` attribute:
+//!
+//! ```no_run
+//! use kinded::Kinded;
+//! use serde::Serialize;
+//! use serde_json::json;
+//!
+//! #[derive(Kinded, Serialize)]
+//! #[kinded(display = "snake_case", attrs(serde(rename_all = "snake_case")))]
+//! enum Drink {
+//!     VeryHotBlackTea,
+//!     Milk { fat: f64 },
+//! }
+//!
+//! let json_value = serde_json::to_value(&DrinkKind::VeryHotBlackTea);
+//! assert_eq!(json_value, json!("very_hot_black_tea"));
+//! ```
+//!
 //! ### Customize Display trait
 //!
 //! Implementation of `Display` trait can be customized in the `serde` fashion:
