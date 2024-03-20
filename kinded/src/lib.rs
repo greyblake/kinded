@@ -126,7 +126,7 @@
 //! If you're using derive traits from other libraries like Serde or Sqlx, you might want to add
 //! extra attributes specific to those libraries. You can add these by using the `attrs` attribute:
 //!
-//! ```no_run
+//! ```ignore
 //! use kinded::Kinded;
 //! use serde::Serialize;
 //! use serde_json::json;
