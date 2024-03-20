@@ -1,6 +1,6 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
-use syn::{Generics, Path, Visibility};
+use syn::{Generics, Path, Visibility, Meta as SynMeta};
 
 #[derive(Debug)]
 pub struct Meta {
@@ -55,6 +55,12 @@ impl Meta {
 
         quote!(#type_name #generics)
     }
+
+    pub fn meta_attrs(&self) -> Vec<SynMeta> {
+        self.kinded_attrs.meta_attrs
+            .clone()
+            .unwrap_or_else(|| Vec::new())
+    }
 }
 
 #[derive(Debug)]
@@ -87,6 +93,9 @@ pub struct KindedAttributes {
 
     /// Attributes to customize implementation for Display trait
     pub display: Option<DisplayCase>,
+
+    /// Internal meta attributes for attributes like `#[serde(rename_all = "camelCase")]`.
+    pub meta_attrs: Option<Vec<SynMeta>>,
 }
 
 /// This uses the same names as serde + "Title Case" variant.
