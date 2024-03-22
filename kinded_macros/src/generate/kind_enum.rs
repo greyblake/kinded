@@ -127,6 +127,8 @@ fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
                 }                                                              // }
 
                 // If still no success, then return an error
+                extern crate alloc;
+                use alloc::borrow::ToOwned;
                 let error = ::kinded::ParseKindError::from_type_and_string::<#kind_name>(s.to_owned());
                 Err(error)
             }
