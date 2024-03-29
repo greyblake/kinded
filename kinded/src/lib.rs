@@ -187,7 +187,7 @@
 //!
 //! MIT © [Serhii Potapov](https://www.greyblake.com)
 
-#![cfg_attr(feature = "no_std", no_std)]
+#![no_std]
 
 mod errors;
 mod traits;

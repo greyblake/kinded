@@ -1,6 +1,5 @@
 extern crate alloc;
 
-#[cfg(feature = "no_std")]
 use alloc::string::{String, ToString};
 
 /// An error which is returned when parsing of a kind type failures.
@@ -39,12 +38,5 @@ impl ::core::fmt::Display for ParseKindError {
 impl ::core::fmt::Debug for ParseKindError {
     fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> Result<(), ::core::fmt::Error> {
         write!(f, "ParseKindError: {self}")
-    }
-}
-
-#[cfg(not(feature = "no_std"))]
-impl ::std::error::Error for ParseKindError {
-    fn source(&self) -> Option<&(dyn ::std::error::Error + 'static)> {
-        None
     }
 }
