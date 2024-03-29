@@ -1,5 +1,8 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
+#![no_std]
+
+extern crate alloc;
 
 use kinded::Kinded;
 
@@ -58,6 +61,9 @@ mod kind_enum {
     use super::RoleKind;
 
     mod traits {
+        extern crate alloc;
+        use alloc::format;
+
         use super::super::{Role, RoleKind};
 
         #[test]
@@ -96,6 +102,9 @@ mod kind_enum {
         }
 
         mod display_trait {
+            extern crate alloc;
+            use alloc::{format, string::ToString};
+
             use super::RoleKind;
 
             #[test]
@@ -208,6 +217,9 @@ mod kind_enum {
         }
 
         mod from_str_trait {
+            extern crate alloc;
+            use alloc::string::ToString;
+
             #[derive(kinded::Kinded)]
             enum Mate {
                 HotMate,
@@ -307,23 +319,19 @@ fn should_allow_to_give_custom_name_kind_type() {
 
 #[test]
 fn should_allow_to_derive_custom_traits() {
-    use std::collections::HashMap;
-
     #[derive(Kinded)]
-    #[kinded(derive(Hash, Eq))]
+    #[kinded(derive(Hash, Eq, PartialOrd, Ord))]
     enum Drink {
         Tea(&'static str),
         Coffee(&'static str),
     }
 
-    let mut drinks = HashMap::new();
+    let mut drinks = alloc::collections::BTreeMap::new();
     drinks.insert(DrinkKind::Tea, 5);
 }
 
 #[test]
 fn should_work_with_generics() {
-    use std::collections::HashMap;
-
     #[derive(Kinded)]
     enum Maybe<T> {
         Just(T),
@@ -335,8 +343,6 @@ fn should_work_with_generics() {
 
 #[test]
 fn should_work_with_lifetimes() {
-    use std::collections::HashMap;
-
     #[derive(Kinded)]
     enum Identifier<'a, I> {
         Name(&'a str),
