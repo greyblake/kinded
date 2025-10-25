@@ -1,4 +1,4 @@
-use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Variant};
+use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, OptOuts, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
@@ -147,6 +147,25 @@ impl Parse for KindedAttributes {
                 } else {
                     let msg = format!("Duplicated attribute: {attr_name}");
                     return Err(syn::Error::new(attr_name.span(), msg));
+                }
+            } else if attr_name == "opt_outs" {
+                let _: Token!(=) = input.parse()?;
+                let opt_outs_input;
+                bracketed!(opt_outs_input in input);
+                let mut opt_outs = OptOuts::default();
+                while !opt_outs_input.is_empty() {
+                    let opt_out_name: Ident = opt_outs_input.parse()?;
+                    if opt_out_name == "default_derives" {
+                        opt_outs.default_derives = true;
+                    } else {
+                        let msg = format!("Unknown opt-out attribute: {opt_out_name}");
+                        return Err(syn::Error::new(opt_out_name.span(), msg));
+                    }
+
+                    // Parse `,` unless it's the end of the stream
+                    if !opt_outs_input.is_empty() {
+                        let _comma: Token![,] = opt_outs_input.parse()?;
+                    }
                 }
             } else {
                 let msg = format!("Unknown attribute: {attr_name}");

@@ -32,10 +32,19 @@ impl Meta {
     pub fn derive_traits(&self) -> Vec<Path> {
         const DEFAULT_DERIVE_TRAITS: &[&str] = &["Debug", "Clone", "Copy", "PartialEq", "Eq"];
 
-        let mut traits: Vec<Path> = DEFAULT_DERIVE_TRAITS
-            .iter()
-            .map(|trait_name| Path::from(format_ident!("{trait_name}")))
-            .collect();
+        let mut traits: Vec<Path> = if self
+            .kinded_attrs
+            .opt_outs
+            .as_ref()
+            .is_some_and(|opt_outs| opt_outs.default_derives)
+        {
+            vec![]
+        } else {
+            DEFAULT_DERIVE_TRAITS
+                .iter()
+                .map(|trait_name| Path::from(format_ident!("{trait_name}")))
+                .collect()
+        };
 
         // Add the extra specified traits, if they're different from the default ones
         if let Some(ref extra_traits) = self.kinded_attrs.derive {
@@ -76,6 +85,19 @@ pub enum FieldsType {
     Unit,
 }
 
+#[derive(Debug)]
+pub struct OptOuts {
+    pub default_derives: bool,
+}
+
+impl Default for OptOuts {
+    fn default() -> Self {
+        Self {
+            default_derives: false,
+        }
+    }
+}
+
 /// Attributes specified with #[kinded(..)]
 #[derive(Debug, Default)]
 pub struct KindedAttributes {
@@ -87,6 +109,9 @@ pub struct KindedAttributes {
 
     /// Attributes to customize implementation for Display trait
     pub display: Option<DisplayCase>,
+
+    /// Attributes to opt out of default behaviors`
+    pub opt_outs: Option<OptOuts>,
 }
 
 /// This uses the same names as serde + "Title Case" variant.
