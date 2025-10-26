@@ -13,6 +13,17 @@ enum Role {
     },
 }
 
+// Derivation of these traits can be delegated to another derive macro,
+// e.g. #[derive(EnumSetType)] from `enumset` crate.
+//
+// See <https://github.com/Lymia/enumset/issues/60>
+#[derive(Kinded)]
+#[kinded(opt_outs=[default_derives], derive(Debug, Clone, Copy, PartialEq, Eq))]
+enum Drink {
+    Tea(&'static str),
+    Coffee(&'static str),
+}
+
 mod main_enum {
     use super::*;
 

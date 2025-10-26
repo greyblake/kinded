@@ -167,6 +167,7 @@ impl Parse for KindedAttributes {
                         let _comma: Token![,] = opt_outs_input.parse()?;
                     }
                 }
+                kinded_attrs.opt_outs = Some(opt_outs);
             } else {
                 let msg = format!("Unknown attribute: {attr_name}");
                 return Err(syn::Error::new(attr_name.span(), msg));
