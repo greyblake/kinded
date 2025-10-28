@@ -88,12 +88,14 @@ pub enum FieldsType {
 #[derive(Debug)]
 pub struct OptOuts {
     pub default_derives: bool,
+    pub from_str_impl: bool,
 }
 
 impl Default for OptOuts {
     fn default() -> Self {
         Self {
             default_derives: false,
+            from_str_impl: false,
         }
     }
 }
