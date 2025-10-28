@@ -93,6 +93,15 @@ fn apply_maybe_case(original: String, maybe_display_case: Option<DisplayCase>) -
 }
 
 fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
+    if meta
+        .kinded_attrs
+        .opt_outs
+        .as_ref()
+        .is_some_and(|opt_outs| opt_outs.from_str_impl)
+    {
+        return proc_macro2::TokenStream::new();
+    }
+
     let kind_name = meta.kind_name();
 
     let original_match_branches = meta.variants.iter().map(|variant| {
