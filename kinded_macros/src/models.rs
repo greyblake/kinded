@@ -89,6 +89,7 @@ pub enum FieldsType {
 pub struct OptOuts {
     pub default_derives: bool,
     pub from_str_impl: bool,
+    pub display_impl: bool,
 }
 
 impl Default for OptOuts {
@@ -96,6 +97,7 @@ impl Default for OptOuts {
         Self {
             default_derives: false,
             from_str_impl: false,
+            display_impl: false,
         }
     }
 }

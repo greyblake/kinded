@@ -61,6 +61,15 @@ fn gen_impl_from_traits(meta: &Meta) -> TokenStream {
 }
 
 fn gen_impl_display_trait(meta: &Meta) -> TokenStream {
+    if meta
+        .kinded_attrs
+        .opt_outs
+        .as_ref()
+        .is_some_and(|opt_outs| opt_outs.display_impl)
+    {
+        return proc_macro2::TokenStream::new();
+    }
+
     let kind_name = meta.kind_name();
     let maybe_case = meta.kinded_attrs.display;
 

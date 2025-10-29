@@ -159,6 +159,8 @@ impl Parse for KindedAttributes {
                         opt_outs.default_derives = true;
                     } else if opt_out_name == "from_str_impl" {
                         opt_outs.from_str_impl = true;
+                    } else if opt_out_name == "display_impl" {
+                        opt_outs.display_impl = true;
                     } else {
                         let msg = format!("Unknown opt-out attribute: {opt_out_name}");
                         return Err(syn::Error::new(opt_out_name.span(), msg));
