@@ -67,7 +67,7 @@ mod kind_enum {
 
         #[test]
         fn should_implement_clone() {
-            let _ = RoleKind::Admin.clone();
+            let _ = RoleKind::Admin;
         }
 
         #[test]

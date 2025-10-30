@@ -2,10 +2,9 @@ use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
-    bracketed, parenthesized,
+    Attribute, Data, DeriveInput, LitStr, Path, Token, bracketed, parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Attribute, Data, DeriveInput, LitStr, Path, Token,
 };
 
 pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
@@ -138,7 +137,9 @@ impl Parse for KindedAttributes {
                         .map(|value| format!(r#""{value}""#))
                         .join(", ");
                         let given_value = format!(r#""{}""#, case_lit_str.value());
-                        let msg = format!("Invalid value for display: {given_value}\nValid values are: {valid_values}");
+                        let msg = format!(
+                            "Invalid value for display: {given_value}\nValid values are: {valid_values}"
+                        );
                         return Err(syn::Error::new(case_lit_str.span(), msg));
                     }
                 };
