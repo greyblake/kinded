@@ -7,7 +7,7 @@
 //! This is a supporting macro crate, that should not be used directly.
 //! For the documentation please refer to [kinded](https://docs.rs/kinded/) crate.
 
-pub(crate) mod gen;
+pub(crate) mod generate;
 pub(crate) mod models;
 pub(crate) mod parse;
 
@@ -25,5 +25,5 @@ fn expand_derive(input: proc_macro::TokenStream) -> Result<TokenStream, syn::Err
     let derive_input: DeriveInput =
         syn::parse(input).expect("kinded failed parse token stream as DeriveInput");
     let meta = parse::parse_derive_input(derive_input)?;
-    Ok(gen::generate(meta))
+    Ok(generate::generate(meta))
 }

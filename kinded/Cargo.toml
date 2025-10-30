@@ -1,7 +1,7 @@
 [package]
 name = "kinded"
 version = "0.3.0"
-edition = "2021"
+edition = "2024"
 authors = ["Serhii Potapov <blake131313@gmail.com>"]
 
 description = "Generate enums with same variants, but without data."
