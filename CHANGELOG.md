@@ -1,4 +1,4 @@
-## v0.4.0 - 2025-xx-xx
+## v0.4.0 - 2025-10-30
 - Update to Rust 2024 edition.
 - no_std support.
 
