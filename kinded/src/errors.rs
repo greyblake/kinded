@@ -1,3 +1,7 @@
+extern crate alloc;
+
+use alloc::string::{String, ToString};
+
 /// An error which is returned when parsing of a kind type failures.
 pub struct ParseKindError {
     kind_type_name: String,
@@ -8,7 +12,7 @@ impl ParseKindError {
     /// This method is used by `kinded` macro to construct an error for FromStr trait and is not
     /// recommend for a direct usage by users.
     pub fn from_type_and_string<KindType>(given_string: String) -> ParseKindError {
-        let full_kind_type_name = std::any::type_name::<KindType>();
+        let full_kind_type_name = core::any::type_name::<KindType>();
         let kind_type_name = full_kind_type_name
             .split("::")
             .last()
@@ -37,8 +41,8 @@ impl ::core::fmt::Debug for ParseKindError {
     }
 }
 
-impl ::std::error::Error for ParseKindError {
-    fn source(&self) -> Option<&(dyn ::std::error::Error + 'static)> {
+impl ::core::error::Error for ParseKindError {
+    fn source(&self) -> Option<&(dyn ::core::error::Error + 'static)> {
         None
     }
 }

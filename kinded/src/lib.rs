@@ -187,6 +187,8 @@
 //!
 //! MIT © [Serhii Potapov](https://www.greyblake.com)
 
+#![no_std]
+
 mod errors;
 mod traits;
 

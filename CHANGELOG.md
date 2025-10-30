@@ -1,5 +1,6 @@
 ## v0.4.0 - 2025-xx-xx
 - Update to Rust 2024 edition.
+- no_std support.
 
 ## v0.3.0 - 2023-08-09
 - Make `::all()` function return an array instead of vector.
