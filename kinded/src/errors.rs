@@ -40,3 +40,9 @@ impl ::core::fmt::Debug for ParseKindError {
         write!(f, "ParseKindError: {self}")
     }
 }
+
+impl ::core::error::Error for ParseKindError {
+    fn source(&self) -> Option<&(dyn ::core::error::Error + 'static)> {
+        None
+    }
+}
