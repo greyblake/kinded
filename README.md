@@ -37,9 +37,11 @@ enum DrinkKind {
 
 impl Drink {
     fn kind(&self) -> DrinkKind {
-        Drink::Mate => DrinkKind::Mate,
-        Drink::Coffee(..) => DrinkKind::Coffee,
-        Drink::Tea { .. } => DrinkKind::Tea,
+        match self {
+            Drink::Mate => DrinkKind::Mate,
+            Drink::Coffee(..) => DrinkKind::Coffee,
+            Drink::Tea { .. } => DrinkKind::Tea,
+        }
     }
 }
 ```
