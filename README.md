@@ -120,6 +120,33 @@ let mut drink_kinds = HashSet::new();
 drink_kinds.insert(DrinkKind::Mate);
 ```
 
+#### Variant Attributes
+
+Some traits require or allow additional configuration via attributes on variants.
+These can be passed through using `#[kinded(...)]`.
+You can only pass one attribute per `#[kinded(...)]`, though you can use multiple of these attributes per variant.
+
+```rs
+use kinded::Kinded;
+
+#[derive(Kinded)]
+#[kinded(derive(Hash, Default))]
+enum Drink {
+    #[kinded(doc = "Not suitable for small children. Please talk to your IT-person about the harmful effects of mate addiction.")]
+    Mate,
+    #[kinded(doc = "Not suitable for small children!")]
+    Coffee(String),
+    #[kinded(default)]
+    #[kinded(doc = "Only suitable for small children if caffeine-free.")]
+    Tea { variety: String, caffeine: bool }
+}
+
+// Now we can access default without having to implement it ourself.
+// Also the drink kinds now have a small doc!
+let default_drink_kind = DrinkKind::default();
+```
+This can also be used to configure derivations of [`Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) and [`Deserialize`](https://docs.rs/serde/latest/serde/trait.Deserialize.html) of [`serde`](https://docs.rs/serde/latest/serde/index.html) or 
+[`EnumMessage`](https://docs.rs/strum/latest/strum/trait.EnumMessage.html) from [`strum`](https://docs.rs/strum/latest/strum/) via `#[kinded(strum(message = "Important message"))]`
 ### Display trait
 
 Implementation of `Display` trait can be customized in the `serde` fashion:

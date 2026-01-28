@@ -38,6 +38,7 @@ fn parse_variant(variant: &syn::Variant) -> Variant {
     Variant {
         ident: variant.ident.clone(),
         fields_type: parse_fields_type(&variant.fields),
+        kinded_variant_attrs: parse_kinded_variant_attrs(&variant),
     }
 }
 
@@ -47,6 +48,30 @@ fn parse_fields_type(fields: &syn::Fields) -> FieldsType {
         syn::Fields::Unnamed(..) => FieldsType::Unnamed,
         syn::Fields::Unit => FieldsType::Unit,
     }
+}
+
+/// This function takes a variant and returns a vector of token stream.
+/// The token streams were previously the content of a `#[kinded(...)]` attribute on this variant.
+/// Other attributes are ignored as they are (probably) meant for the main enum.
+///
+/// Multiple `#[kinded(...)]` attributes can be present on one variant, therefore a vector will collect them.
+fn parse_kinded_variant_attrs(variant: &'_ syn::Variant) -> Vec<proc_macro2::TokenStream> {
+    variant
+        .attrs
+        .iter()
+        .filter_map(|attr| {
+            // Only keep attributes of the form `path(...)`
+            match &attr.meta {
+                syn::Meta::List(meta_list) => Some(meta_list),
+                _ => None,
+            }
+        })
+        .filter_map(|meta_list|
+        // and only if the path is "kinded"
+        // then will probably save a teeny tiny amount of time
+        // as it skips the cloning in cases were the path does not match.
+        meta_list.path.is_ident("kinded").then(|| meta_list.tokens.clone()))
+        .collect()
 }
 
 /// Find `#[kinded(..)]` attribute on the enum.

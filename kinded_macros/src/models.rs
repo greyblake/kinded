@@ -61,6 +61,10 @@ impl Meta {
 pub struct Variant {
     pub ident: Ident,
     pub fields_type: FieldsType,
+    /// Attributes specified with `#[kinded(CONTENT)]` above the variants of the original enum.
+    /// The token streams in here only contain the `CONTENT` from the example above.
+    /// These can be pasted as is into the kind enum.
+    pub kinded_variant_attrs: Vec<TokenStream>,
 }
 
 /// This mimics syn::Fields, but without payload.

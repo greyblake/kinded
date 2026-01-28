@@ -22,12 +22,18 @@ fn gen_definition(meta: &Meta) -> TokenStream {
     let vis = &meta.vis;
     let kind_name = meta.kind_name();
     let variant_names: Vec<&Ident> = meta.variants.iter().map(|v| &v.ident).collect();
+    let variant_attr: Vec<&[TokenStream]> = meta
+        .variants
+        .iter()
+        .map(|v| v.kinded_variant_attrs.as_slice())
+        .collect();
     let traits = meta.derive_traits();
 
     quote!(
-        #[derive(#(#traits),*)]                                                // #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #[derive(#(#traits),*)]                                                // #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
         #vis enum #kind_name {                                                 // pub enum DrinkKind {
-            #(#variant_names),*                                                //     Mate, Coffee, Tea
+            #( #(#[#variant_attr])*                                            //
+            #variant_names),*                                                  //     Mate, Coffee, #[default] Tea
         }                                                                      // }
 
         impl #kind_name {                                                      // impl DrinkKind {

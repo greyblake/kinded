@@ -5,6 +5,56 @@
 extern crate alloc;
 
 use kinded::Kinded;
+mod variant_attributes {
+    //! This test module uses the [`EnumMessage`]-Trait because if variant attributes do not work,
+    //! the derive-macro will still finish successfully.
+    //! The corresponding methods will just return `None`.
+
+    use super::*;
+    use alloc::string::String;
+    use strum::EnumMessage;
+
+    #[derive(Kinded)]
+    #[kinded(derive(Hash, Default, EnumMessage))]
+    enum Drink {
+        #[kinded(doc = "Not suitable for small children. Please talk to your IT-person about the harmful effects of mate addiction.")]
+        #[kinded(strum(
+            message = "Made from fermented leaves.",
+            detailed_message="Caffeinated beverage from South America. Not suitable for small children because of caffeine."
+        ))]
+        Mate,
+        #[kinded(doc = "Not suitable for small children!")]
+        #[kinded(strum(
+            message = "Made from roasted, ground beans.",
+            detailed_message="Beverage made from roasted, ground beans that originated somewhere around the read sea. Not suitable for small children, especially Espresso."
+        ))]
+        Coffee(String),
+        #[kinded(default)]
+        #[kinded(doc = "Only suitable for small children if caffeine-free.")]
+        #[kinded(strum(
+            message = "Made from fermented leaves.",
+            detailed_message="Beverage made from fermented leaves that originated from china. Some contain caffeine and are not suitable for small children."
+        ))]
+        Tea { variety: String, caffeine: bool }
+    }
+    #[test]
+    pub fn test_message() {
+        let mate = DrinkKind::Mate;
+        assert_eq!(Some("Made from fermented leaves."), mate.get_message());
+        assert_eq!(Some("Caffeinated beverage from South America. Not suitable for small children because of caffeine."), mate.get_detailed_message());
+        assert_eq!(Some("Not suitable for small children. Please talk to your IT-person about the harmful effects of mate addiction."), mate.get_documentation());
+
+        let coffee = DrinkKind::Coffee;
+        assert_eq!(Some("Made from roasted, ground beans."), coffee.get_message());
+        assert_eq!(Some("Beverage made from roasted, ground beans that originated somewhere around the read sea. Not suitable for small children, especially Espresso."), coffee.get_detailed_message());
+        assert_eq!(Some("Not suitable for small children!"), coffee.get_documentation());
+
+        let tea = DrinkKind::Tea;
+        assert_eq!(Some("Made from fermented leaves."), tea.get_message());
+        assert_eq!(Some("Beverage made from fermented leaves that originated from china. Some contain caffeine and are not suitable for small children."), tea.get_detailed_message());
+        assert_eq!(Some("Only suitable for small children if caffeine-free."), tea.get_documentation());
+    }
+}
 
 #[derive(Kinded)]
 enum Role {
