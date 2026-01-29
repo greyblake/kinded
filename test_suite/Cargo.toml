@@ -7,3 +7,5 @@ edition = "2024"
 
 [dependencies]
 kinded = {  path = "../kinded" }
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.114"

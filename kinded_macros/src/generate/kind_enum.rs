@@ -23,9 +23,11 @@ fn gen_definition(meta: &Meta) -> TokenStream {
     let kind_name = meta.kind_name();
     let variant_names: Vec<&Ident> = meta.variants.iter().map(|v| &v.ident).collect();
     let traits = meta.derive_traits();
+    let attrs = meta.meta_attrs();
 
     quote!(
         #[derive(#(#traits),*)]                                                // #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #(#[#attrs])*                                                          // #[serde(rename_all = "camelCase")]
         #vis enum #kind_name {                                                 // pub enum DrinkKind {
             #(#variant_names),*                                                //     Mate, Coffee, Tea
         }                                                                      // }
