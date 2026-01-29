@@ -2,7 +2,7 @@ use kinded::Kinded;
 
 #[allow(dead_code)]
 #[derive(Kinded)]
-enum Drink {
+enum Beverage {
     Mate,
     Coffee(String),
     Tea { variety: String, caffeine: bool },
@@ -11,22 +11,22 @@ enum Drink {
 fn main() {
     // Mate
     {
-        let drink = Drink::Mate;
-        assert_eq!(drink.kind(), DrinkKind::Mate);
+        let drink = Beverage::Mate;
+        assert_eq!(drink.kind(), BeverageKind::Mate);
     }
 
     // Coffee
     {
-        let drink = Drink::Coffee("Espresso".to_owned());
-        assert_eq!(drink.kind(), DrinkKind::Coffee);
+        let drink = Beverage::Coffee("Espresso".to_owned());
+        assert_eq!(drink.kind(), BeverageKind::Coffee);
     }
 
     // Tea
     {
-        let drink = Drink::Tea {
+        let drink = Beverage::Tea {
             variety: "Green".to_owned(),
             caffeine: true,
         };
-        assert_eq!(drink.kind(), DrinkKind::Tea);
+        assert_eq!(drink.kind(), BeverageKind::Tea);
     }
 }

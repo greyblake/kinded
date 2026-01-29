@@ -1,3 +1,7 @@
+## [Unreleased]
+- Add `#[kinded(rename = "...")]` attribute for variants to customize display/parse names.
+  This is useful when the automatic case conversion doesn't produce the desired result.
+
 ## v0.4.0 - 2025-10-30
 - Update to Rust 2024 edition.
 - no_std support.

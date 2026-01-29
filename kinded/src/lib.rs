@@ -166,6 +166,35 @@
 //!
 //! The possible values are `"snake_case"`, `"camelCase"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"kebab-case"`, `"SCREAMING-KEBAB-CASE"`, `"Title Case"`, `"lowercase"`, `"UPPERCASE"`.
 //!
+//! ### Rename variants
+//!
+//! Individual variants can have custom display/parse names using the `rename` attribute.
+//! This is useful when the automatic case conversion doesn't produce the desired result:
+//!
+//! ```
+//! use kinded::Kinded;
+//!
+//! #[derive(Kinded)]
+//! #[kinded(display = "snake_case")]
+//! enum Validator {
+//!     NotEmpty,
+//!     // Without rename, this would display as "len_utf_16_min" (with extra underscore)
+//!     #[kinded(rename = "len_utf16_min")]
+//!     LenUtf16Min,
+//!     #[kinded(rename = "len_utf16_max")]
+//!     LenUtf16Max,
+//! }
+//!
+//! assert_eq!(ValidatorKind::NotEmpty.to_string(), "not_empty");
+//! assert_eq!(ValidatorKind::LenUtf16Min.to_string(), "len_utf16_min");
+//! assert_eq!(ValidatorKind::LenUtf16Max.to_string(), "len_utf16_max");
+//!
+//! // Parsing also works with the renamed values
+//! assert_eq!("len_utf16_min".parse::<ValidatorKind>().unwrap(), ValidatorKind::LenUtf16Min);
+//! ```
+//!
+//! Note: The original variant name and its case alternatives can still be parsed (e.g., `"LenUtf16Min"`, `"len_utf_16_min"`).
+//!
 //! ## A note about the war in Ukraine 🇺🇦
 //!
 //! Today I live in Berlin, I have the luxury to live a physically safe life.

@@ -61,6 +61,9 @@ impl Meta {
 pub struct Variant {
     pub ident: Ident,
     pub fields_type: FieldsType,
+    /// Custom display/parse name specified with `#[kinded(rename = "...")]`.
+    /// When set, this overrides the automatic case conversion for Display and FromStr.
+    pub rename: Option<String>,
 }
 
 /// This mimics syn::Fields, but without payload.

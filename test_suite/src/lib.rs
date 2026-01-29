@@ -352,3 +352,135 @@ fn should_work_with_lifetimes() {
     let identifier: Identifier<i32> = Identifier::Name("Xen");
     assert_eq!(identifier.kind(), IdentifierKind::Name);
 }
+
+mod rename {
+    extern crate alloc;
+    use alloc::string::ToString;
+    use kinded::Kinded;
+
+    /// Test that rename overrides the Display output
+    #[test]
+    fn should_display_renamed_variant() {
+        #[derive(Kinded)]
+        enum Validator {
+            NotEmpty,
+            #[kinded(rename = "len_utf16_min")]
+            LenUtf16Min,
+        }
+
+        assert_eq!(ValidatorKind::NotEmpty.to_string(), "NotEmpty");
+        assert_eq!(ValidatorKind::LenUtf16Min.to_string(), "len_utf16_min");
+    }
+
+    /// Test that rename overrides the automatic case conversion
+    #[test]
+    fn should_override_display_case_with_rename() {
+        #[derive(Kinded)]
+        #[kinded(display = "snake_case")]
+        enum Validator {
+            NotEmpty,
+            // Without rename, this would display as "len_utf_16_min" (with extra underscore)
+            #[kinded(rename = "len_utf16_min")]
+            LenUtf16Min,
+        }
+
+        assert_eq!(ValidatorKind::NotEmpty.to_string(), "not_empty");
+        assert_eq!(ValidatorKind::LenUtf16Min.to_string(), "len_utf16_min");
+    }
+
+    /// Test that FromStr parses the renamed value
+    #[test]
+    fn should_parse_renamed_value() {
+        #[derive(Kinded)]
+        #[kinded(display = "snake_case")]
+        enum Validator {
+            NotEmpty,
+            #[kinded(rename = "len_utf16_min")]
+            LenUtf16Min,
+        }
+
+        // Parse the renamed value
+        let kind: ValidatorKind = "len_utf16_min".parse().unwrap();
+        assert_eq!(kind, ValidatorKind::LenUtf16Min);
+    }
+
+    /// Test that original variant name and alternatives still parse correctly
+    #[test]
+    fn should_still_parse_original_names() {
+        #[derive(Kinded)]
+        #[kinded(display = "snake_case")]
+        enum Validator {
+            NotEmpty,
+            #[kinded(rename = "len_utf16_min")]
+            LenUtf16Min,
+        }
+
+        // Original name should still work
+        assert_eq!(
+            "LenUtf16Min".parse::<ValidatorKind>().unwrap(),
+            ValidatorKind::LenUtf16Min
+        );
+
+        // Alternative cases should also work
+        assert_eq!(
+            "len_utf_16_min".parse::<ValidatorKind>().unwrap(),
+            ValidatorKind::LenUtf16Min
+        );
+        assert_eq!(
+            "LEN_UTF_16_MIN".parse::<ValidatorKind>().unwrap(),
+            ValidatorKind::LenUtf16Min
+        );
+    }
+
+    /// Test rename with multiple renamed variants
+    #[test]
+    fn should_work_with_multiple_renames() {
+        #[derive(Kinded)]
+        #[kinded(display = "snake_case")]
+        enum Validator {
+            #[kinded(rename = "len_utf16_min")]
+            LenUtf16Min,
+            #[kinded(rename = "len_utf16_max")]
+            LenUtf16Max,
+            NotEmpty,
+        }
+
+        assert_eq!(ValidatorKind::LenUtf16Min.to_string(), "len_utf16_min");
+        assert_eq!(ValidatorKind::LenUtf16Max.to_string(), "len_utf16_max");
+        assert_eq!(ValidatorKind::NotEmpty.to_string(), "not_empty");
+
+        assert_eq!(
+            "len_utf16_min".parse::<ValidatorKind>().unwrap(),
+            ValidatorKind::LenUtf16Min
+        );
+        assert_eq!(
+            "len_utf16_max".parse::<ValidatorKind>().unwrap(),
+            ValidatorKind::LenUtf16Max
+        );
+    }
+
+    /// Test rename with variants that have data
+    #[test]
+    fn should_work_with_data_variants() {
+        #[derive(Kinded)]
+        enum Action {
+            #[kinded(rename = "custom_action")]
+            DoSomething(i32),
+            #[kinded(rename = "other")]
+            DoOther {
+                value: i32,
+            },
+            Plain,
+        }
+
+        assert_eq!(ActionKind::DoSomething.to_string(), "custom_action");
+        assert_eq!(ActionKind::DoOther.to_string(), "other");
+        assert_eq!(ActionKind::Plain.to_string(), "Plain");
+
+        assert_eq!(
+            "custom_action".parse::<ActionKind>().unwrap(),
+            ActionKind::DoSomething
+        );
+        assert_eq!("other".parse::<ActionKind>().unwrap(), ActionKind::DoOther);
+    }
+}

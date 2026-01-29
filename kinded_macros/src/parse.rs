@@ -35,10 +35,35 @@ pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
 }
 
 fn parse_variant(variant: &syn::Variant) -> Variant {
+    let rename = find_variant_kinded_rename(&variant.attrs);
     Variant {
         ident: variant.ident.clone(),
         fields_type: parse_fields_type(&variant.fields),
+        rename,
     }
+}
+
+/// Find `#[kinded(rename = "...")]` attribute on a variant and extract the rename value.
+fn find_variant_kinded_rename(attrs: &[Attribute]) -> Option<String> {
+    for attr in attrs {
+        if attr.path().is_ident("kinded") {
+            // Try to parse the attribute content
+            if let Ok(parsed) = attr.parse_args_with(|input: ParseStream| {
+                let attr_name: Ident = input.parse()?;
+                if attr_name == "rename" {
+                    let _: Token!(=) = input.parse()?;
+                    let lit_str: LitStr = input.parse()?;
+                    Ok(Some(lit_str.value()))
+                } else {
+                    Ok(None)
+                }
+            }) && parsed.is_some()
+            {
+                return parsed;
+            }
+        }
+    }
+    None
 }
 
 fn parse_fields_type(fields: &syn::Fields) -> FieldsType {
