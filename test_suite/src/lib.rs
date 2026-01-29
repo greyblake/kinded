@@ -467,7 +467,9 @@ mod rename {
             #[kinded(rename = "custom_action")]
             DoSomething(i32),
             #[kinded(rename = "other")]
-            DoOther { value: i32 },
+            DoOther {
+                value: i32,
+            },
             Plain,
         }
 

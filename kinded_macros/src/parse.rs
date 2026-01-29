@@ -57,10 +57,9 @@ fn find_variant_kinded_rename(attrs: &[Attribute]) -> Option<String> {
                 } else {
                     Ok(None)
                 }
-            }) {
-                if parsed.is_some() {
-                    return parsed;
-                }
+            }) && parsed.is_some()
+            {
+                return parsed;
             }
         }
     }
