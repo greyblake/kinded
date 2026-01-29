@@ -130,8 +130,9 @@ You can only pass one attribute per `#[kinded(...)]`, though you can use multipl
 use kinded::Kinded;
 
 #[derive(Kinded)]
-#[kinded(derive(Hash, Default))]
+#[kinded(derive(Default, Hash, Default))]
 enum Drink {
+    #[kinded(default)]
     #[kinded(doc = "Not suitable for small children. Please talk to your IT-person about the harmful effects of mate addiction.")]
     Mate,
     #[kinded(doc = "Not suitable for small children!")]
