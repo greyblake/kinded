@@ -120,6 +120,35 @@ let mut drink_kinds = HashSet::new();
 drink_kinds.insert(DrinkKind::Mate);
 ```
 
+### Extra attributes
+
+If you're using derive macros from other libraries like Serde or Strum, you may want to add
+extra attributes specific to those libraries to the generated kind enum. You can do this using the `attrs` attribute:
+
+```rs
+use kinded::Kinded;
+use serde::Serialize;
+
+#[derive(Kinded, Serialize)]
+#[kinded(derive(Serialize), attrs(serde(rename_all = "snake_case")))]
+enum Drink {
+    VeryHotBlackTea,
+    Milk { fat: f64 },
+}
+
+let json = serde_json::to_string(&DrinkKind::VeryHotBlackTea).unwrap();
+assert_eq!(json, r#""very_hot_black_tea""#);
+```
+
+You can pass multiple attributes:
+
+```rs
+#[kinded(attrs(
+    serde(rename_all = "camelCase"),
+    doc = "Kind of drink"
+))]
+```
+
 ### Display trait
 
 Implementation of `Display` trait can be customized in the `serde` fashion:

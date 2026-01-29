@@ -27,7 +27,7 @@ fn gen_definition(meta: &Meta) -> TokenStream {
 
     quote!(
         #[derive(#(#traits),*)]                                                // #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-        #(#[#attrs]),*                                                         // #[serde(rename_all = "camelCase")]
+        #(#[#attrs])*                                                          // #[serde(rename_all = "camelCase")]
         #vis enum #kind_name {                                                 // pub enum DrinkKind {
             #(#variant_names),*                                                //     Mate, Coffee, Tea
         }                                                                      // }

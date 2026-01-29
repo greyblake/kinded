@@ -1,3 +1,6 @@
+## Unreleased
+- Add `attrs` attribute to pass extra attributes to the generated kind enum (e.g., `#[kinded(attrs(serde(rename_all = "snake_case")))]`)
+
 ## v0.4.1 - 2026-01-29
 - Add `#[kinded(rename = "...")]` attribute for variants to customize display/parse names.
   This is useful when the automatic case conversion doesn't produce the desired result.

@@ -298,17 +298,122 @@ mod kind_enum {
             }
         }
 
-        mod attributes {
-            use serde_json::json;
+        mod attrs {
             use crate::RoleKind;
+            use serde::{Deserialize, Serialize};
+            use serde_json::json;
 
             #[test]
-            fn should_respect_opaque_attr_values() {
-                let value = serde_json::to_value(&RoleKind::Guest)
-                    .unwrap();
-
-                dbg!(&value);
+            fn should_apply_single_attr() {
+                // RoleKind has serde(rename_all = "camelCase") applied
+                let value = serde_json::to_value(&RoleKind::Guest).unwrap();
                 assert_eq!(value, json!("guest"));
+            }
+
+            #[test]
+            fn should_apply_multiple_attrs() {
+                #[derive(kinded::Kinded, Serialize, Deserialize)]
+                #[kinded(
+                    derive(Serialize, Deserialize),
+                    attrs(
+                        serde(rename_all = "snake_case"),
+                        doc = "This is a generated kind enum"
+                    )
+                )]
+                enum Vehicle {
+                    SportsCar,
+                    PickupTruck,
+                    MotorCycle,
+                }
+
+                // Test serialization with snake_case
+                let value = serde_json::to_value(&VehicleKind::SportsCar).unwrap();
+                assert_eq!(value, json!("sports_car"));
+
+                let value = serde_json::to_value(&VehicleKind::PickupTruck).unwrap();
+                assert_eq!(value, json!("pickup_truck"));
+
+                // Test deserialization
+                let kind: VehicleKind = serde_json::from_str(r#""motor_cycle""#).unwrap();
+                assert_eq!(kind, VehicleKind::MotorCycle);
+            }
+
+            #[test]
+            fn should_work_with_name_value_attr() {
+                #[derive(kinded::Kinded)]
+                #[kinded(attrs(doc = "A beverage kind"))]
+                enum Beverage {
+                    Water,
+                    Juice,
+                }
+
+                // If it compiles, the doc attribute was applied correctly
+                let _ = BeverageKind::Water;
+            }
+
+            #[test]
+            fn should_combine_with_kind_attr() {
+                #[derive(kinded::Kinded, Serialize)]
+                #[kinded(
+                    kind = AnimalType,
+                    derive(Serialize),
+                    attrs(serde(rename_all = "SCREAMING_SNAKE_CASE"))
+                )]
+                enum Animal {
+                    DomesticCat,
+                    WildDog,
+                }
+
+                let value = serde_json::to_value(&AnimalType::DomesticCat).unwrap();
+                assert_eq!(value, json!("DOMESTIC_CAT"));
+
+                let value = serde_json::to_value(&AnimalType::WildDog).unwrap();
+                assert_eq!(value, json!("WILD_DOG"));
+            }
+
+            #[test]
+            fn should_combine_with_display_attr() {
+                #[derive(kinded::Kinded, Serialize)]
+                #[kinded(
+                    display = "kebab-case",
+                    derive(Serialize),
+                    attrs(serde(rename_all = "kebab-case"))
+                )]
+                enum Fruit {
+                    GreenApple,
+                    RedCherry,
+                }
+
+                // Display should use kebab-case
+                assert_eq!(FruitKind::GreenApple.to_string(), "green-apple");
+
+                // Serde should also use kebab-case
+                let value = serde_json::to_value(&FruitKind::RedCherry).unwrap();
+                assert_eq!(value, json!("red-cherry"));
+            }
+
+            #[test]
+            fn should_support_deserialization() {
+                #[derive(kinded::Kinded, Serialize, Deserialize, PartialEq, Debug)]
+                #[kinded(derive(Serialize, Deserialize), attrs(serde(rename_all = "camelCase")))]
+                enum Planet {
+                    MilkyWayEarth,
+                    RedMars,
+                }
+
+                // Serialize
+                let json = serde_json::to_string(&PlanetKind::MilkyWayEarth).unwrap();
+                assert_eq!(json, r#""milkyWayEarth""#);
+
+                // Deserialize
+                let kind: PlanetKind = serde_json::from_str(r#""redMars""#).unwrap();
+                assert_eq!(kind, PlanetKind::RedMars);
+
+                // Round-trip
+                let original = PlanetKind::MilkyWayEarth;
+                let json = serde_json::to_string(&original).unwrap();
+                let restored: PlanetKind = serde_json::from_str(&json).unwrap();
+                assert_eq!(original, restored);
             }
         }
     }
