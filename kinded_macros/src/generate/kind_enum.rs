@@ -65,11 +65,16 @@ fn gen_impl_display_trait(meta: &Meta) -> TokenStream {
     let maybe_case = meta.kinded_attrs.display;
 
     let match_branches = meta.variants.iter().map(|variant| {
-        let original_variant_name_str = variant.ident.to_string();
-        let cased_variant_name = apply_maybe_case(original_variant_name_str, maybe_case);
+        // Use custom rename if specified, otherwise apply case conversion
+        let display_name = if let Some(ref rename) = variant.rename {
+            rename.clone()
+        } else {
+            let original_variant_name_str = variant.ident.to_string();
+            apply_maybe_case(original_variant_name_str, maybe_case)
+        };
         let variant_name = &variant.ident;
         quote!(
-            #kind_name::#variant_name => write!(f, #cased_variant_name)
+            #kind_name::#variant_name => write!(f, #display_name)
         )
     });
 
@@ -95,6 +100,18 @@ fn apply_maybe_case(original: String, maybe_display_case: Option<DisplayCase>) -
 fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
     let kind_name = meta.kind_name();
 
+    // First priority: match custom renames (if any variant has a rename)
+    let rename_match_branches: Vec<_> = meta
+        .variants
+        .iter()
+        .filter_map(|variant| {
+            variant.rename.as_ref().map(|rename| {
+                let ident = &variant.ident;
+                quote!(#rename => return Ok(#kind_name::#ident),)
+            })
+        })
+        .collect();
+
     let original_match_branches = meta.variants.iter().map(|variant| {
         let ident = &variant.ident;
         let name_str = ident.to_string();
@@ -108,12 +125,27 @@ fn gen_impl_from_str_trait(meta: &Meta) -> TokenStream {
         quote!(#(#alternatives)|* => return Ok(#kind_name::#ident),)
     });
 
+    // Only generate the rename match block if there are any renames
+    let rename_match_block = if rename_match_branches.is_empty() {
+        quote!()
+    } else {
+        quote!(
+            // First try to match custom renames
+            match s {
+                #(#rename_match_branches)*
+                _ => ()
+            }
+        )
+    };
+
     quote!(
         impl ::core::str::FromStr for #kind_name {
             type Err = ::kinded::ParseKindError;
 
             fn from_str(s: &str) -> ::core::result::Result<Self, Self::Err> {
-                // First try to match the variants as they are
+                #rename_match_block
+
+                // Try to match the variants as they are (original names)
                 match s {                                                      // match s {
                     #(#original_match_branches)*                               //     "HotMate" => Mate::HotMate,
                     _ => ()                                                    //      _ => (),
