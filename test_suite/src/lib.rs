@@ -300,6 +300,7 @@ mod kind_enum {
 
         mod attrs {
             use crate::RoleKind;
+            use alloc::string::ToString;
             use serde::{Deserialize, Serialize};
             use serde_json::json;
 
