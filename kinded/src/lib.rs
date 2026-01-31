@@ -161,6 +161,38 @@
 //! assert_eq!(json_value, json!("very_hot_black_tea"));
 //! ```
 //!
+//! ### Variant attributes
+//!
+//! You can also apply attributes to individual variants of the generated kind enum:
+//!
+//! ```ignore
+//! use kinded::Kinded;
+//!
+//! #[derive(Kinded)]
+//! #[kinded(derive(Default))]
+//! enum Priority {
+//!     Low,
+//!     #[kinded(attrs(default))]
+//!     Medium,
+//!     High,
+//! }
+//!
+//! // Medium is the default
+//! assert_eq!(PriorityKind::default(), PriorityKind::Medium);
+//! ```
+//!
+//! You can combine `attrs` with `rename` on the same variant:
+//!
+//! ```ignore
+//! #[derive(Kinded)]
+//! #[kinded(derive(Default))]
+//! enum Level {
+//!     #[kinded(rename = "low_level", attrs(default))]
+//!     Low,
+//!     Medium,
+//! }
+//! ```
+//!
 //! ### Customize Display trait
 //!
 //! Implementation of `Display` trait can be customized in the `serde` fashion:

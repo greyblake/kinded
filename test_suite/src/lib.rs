@@ -680,3 +680,163 @@ mod rename {
         assert_eq!("other".parse::<ActionKind>().unwrap(), ActionKind::DoOther);
     }
 }
+
+mod variant_attrs {
+    extern crate alloc;
+    use alloc::string::ToString;
+    use kinded::Kinded;
+    use serde::{Deserialize, Serialize};
+
+    /// Test that a single attribute can be applied to a variant
+    #[test]
+    fn should_apply_single_attr_to_variant() {
+        #[derive(Kinded)]
+        #[kinded(derive(Default))]
+        enum Priority {
+            Low,
+            #[kinded(attrs(default))]
+            Medium,
+            High,
+        }
+
+        assert_eq!(PriorityKind::default(), PriorityKind::Medium);
+    }
+
+    /// Test that multiple attributes can be applied to a variant
+    #[test]
+    fn should_apply_multiple_attrs_to_variant() {
+        #[derive(Kinded, Serialize)]
+        #[kinded(derive(Default, Serialize), attrs(serde(rename_all = "snake_case")))]
+        enum Status {
+            #[kinded(attrs(default, serde(rename = "waiting")))]
+            Pending,
+            Active,
+            Done,
+        }
+
+        // Test default
+        assert_eq!(StatusKind::default(), StatusKind::Pending);
+
+        // Test serde rename on variant
+        let json = serde_json::to_string(&StatusKind::Pending).unwrap();
+        assert_eq!(json, r#""waiting""#);
+
+        // Other variants should use enum-level rename_all
+        let json = serde_json::to_string(&StatusKind::Active).unwrap();
+        assert_eq!(json, r#""active""#);
+    }
+
+    /// Test attrs on multiple variants
+    #[test]
+    fn should_apply_attrs_to_multiple_variants() {
+        #[derive(Kinded, Serialize)]
+        #[kinded(derive(Serialize), attrs(serde(rename_all = "SCREAMING_SNAKE_CASE")))]
+        enum Event {
+            #[kinded(attrs(serde(rename = "UserLoggedIn")))]
+            Login,
+            #[kinded(attrs(serde(rename = "UserLoggedOut")))]
+            Logout,
+            // This one uses the enum-level rename_all
+            SessionExpired,
+        }
+
+        assert_eq!(
+            serde_json::to_string(&EventKind::Login).unwrap(),
+            r#""UserLoggedIn""#
+        );
+        assert_eq!(
+            serde_json::to_string(&EventKind::Logout).unwrap(),
+            r#""UserLoggedOut""#
+        );
+        assert_eq!(
+            serde_json::to_string(&EventKind::SessionExpired).unwrap(),
+            r#""SESSION_EXPIRED""#
+        );
+    }
+
+    /// Test combining variant attrs with rename
+    #[test]
+    fn should_combine_with_rename() {
+        #[derive(Kinded, Serialize)]
+        #[kinded(derive(Default, Serialize))]
+        enum Level {
+            #[kinded(rename = "low_level", attrs(default))]
+            Low,
+            Medium,
+            High,
+        }
+
+        // Default should work
+        assert_eq!(LevelKind::default(), LevelKind::Low);
+
+        // Display should use rename
+        assert_eq!(LevelKind::Low.to_string(), "low_level");
+    }
+
+    /// Test doc attribute on variants
+    #[test]
+    fn should_support_doc_attr() {
+        #[derive(Kinded)]
+        enum Color {
+            #[kinded(attrs(doc = "The color red"))]
+            Red,
+            #[kinded(attrs(doc = "The color green"))]
+            Green,
+            Blue,
+        }
+
+        // If it compiles, the doc attributes were applied correctly
+        let _ = ColorKind::Red;
+        let _ = ColorKind::Green;
+        let _ = ColorKind::Blue;
+    }
+
+    /// Test attrs on variants with data
+    #[test]
+    fn should_work_with_data_variants() {
+        #[derive(Kinded)]
+        #[kinded(derive(Default))]
+        enum Container {
+            #[kinded(attrs(default))]
+            Empty,
+            Single(i32),
+            Multiple {
+                items: i32,
+            },
+        }
+
+        assert_eq!(ContainerKind::default(), ContainerKind::Empty);
+    }
+
+    /// Test deserialization with variant attrs
+    #[test]
+    fn should_support_deserialization_with_variant_attrs() {
+        #[derive(Kinded, Serialize, Deserialize)]
+        #[kinded(derive(Serialize, Deserialize))]
+        enum Action {
+            #[kinded(attrs(serde(rename = "create_new")))]
+            Create,
+            #[kinded(attrs(serde(rename = "read_existing")))]
+            Read,
+            Update,
+            Delete,
+        }
+
+        // Serialize
+        assert_eq!(
+            serde_json::to_string(&ActionKind::Create).unwrap(),
+            r#""create_new""#
+        );
+
+        // Deserialize
+        let kind: ActionKind = serde_json::from_str(r#""create_new""#).unwrap();
+        assert_eq!(kind, ActionKind::Create);
+
+        let kind: ActionKind = serde_json::from_str(r#""read_existing""#).unwrap();
+        assert_eq!(kind, ActionKind::Read);
+
+        // Variants without attrs use default names
+        let kind: ActionKind = serde_json::from_str(r#""Update""#).unwrap();
+        assert_eq!(kind, ActionKind::Update);
+    }
+}

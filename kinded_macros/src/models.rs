@@ -68,6 +68,8 @@ pub struct Variant {
     /// Custom display/parse name specified with `#[kinded(rename = "...")]`.
     /// When set, this overrides the automatic case conversion for Display and FromStr.
     pub rename: Option<String>,
+    /// Extra attributes to apply to the generated kind variant (e.g., `#[default]`, `#[serde(rename = "...")]`).
+    pub attrs: Vec<SynMeta>,
 }
 
 /// This mimics syn::Fields, but without payload.
