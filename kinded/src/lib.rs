@@ -30,18 +30,37 @@
 //! }
 //!
 //! impl Drink {
-//!     fn kind(&self) -> DrinkKind {
-//!         Drink::Mate => DrinkKind::Mate,
-//!         Drink::Coffee(..) => DrinkKind::Coffee,
-//!         Drink::Tea { .. } => DrinkKind::Tea,
+//!     const fn kind(&self) -> DrinkKind {
+//!         match self {
+//!             Drink::Mate => DrinkKind::Mate,
+//!             Drink::Coffee(..) => DrinkKind::Coffee,
+//!             Drink::Tea { .. } => DrinkKind::Tea,
+//!         }
 //!     }
 //! }
+//! ```
+//!
+//! ## Const context
+//!
+//! The `kind()` method is a `const fn`, so it can be used in const contexts:
+//!
+//! ```
+//! use kinded::Kinded;
+//!
+//! #[derive(Kinded)]
+//! enum Status {
+//!     Active,
+//!     Inactive,
+//! }
+//!
+//! const ACTIVE_KIND: StatusKind = Status::Active.kind();
+//! ```
 //!
 //! ## Kinded trait
 //!
 //! The library provides `Kinded` trait:
 //!
-//! ```rs
+//! ```ignore
 //! pub trait Kinded {
 //!     type Kind: PartialEq + Eq + Debug + Clone + Copy;
 //!

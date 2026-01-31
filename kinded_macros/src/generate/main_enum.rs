@@ -27,7 +27,7 @@ fn gen_fn_kind(meta: &Meta) -> TokenStream {
         .map(|variant| gen_match_branch(name, &kind_name, variant));
 
     quote!(
-        pub fn kind(&self) -> #kind_name {                                     // pub fn kind(&self) -> DrinkKind {
+        pub const fn kind(&self) -> #kind_name {                               // pub const fn kind(&self) -> DrinkKind {
             match self {                                                       //     match self {
                 #(#match_branches),*                                           //         Drink::Coffee(..) => DrinkKind::Coffee,
             }                                                                  //     }

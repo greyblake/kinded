@@ -36,7 +36,7 @@ enum DrinkKind {
 }
 
 impl Drink {
-    fn kind(&self) -> DrinkKind {
+    const fn kind(&self) -> DrinkKind {
         match self {
             Drink::Mate => DrinkKind::Mate,
             Drink::Coffee(..) => DrinkKind::Coffee,
@@ -44,6 +44,22 @@ impl Drink {
         }
     }
 }
+```
+
+## Const context
+
+The `kind()` method is a `const fn`, so it can be used in const contexts:
+
+```rs
+use kinded::Kinded;
+
+#[derive(Kinded)]
+enum Status {
+    Active,
+    Inactive,
+}
+
+const ACTIVE_KIND: StatusKind = Status::Active.kind();
 ```
 
 ## Kinded trait
