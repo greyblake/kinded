@@ -1,4 +1,4 @@
-use crate::models::{DisplayCase, Meta};
+use crate::models::{DisplayCase, Meta, Variant};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
@@ -21,15 +21,18 @@ pub fn gen_kind_enum(meta: &Meta) -> TokenStream {
 fn gen_definition(meta: &Meta) -> TokenStream {
     let vis = &meta.vis;
     let kind_name = meta.kind_name();
-    let variant_names: Vec<&Ident> = meta.variants.iter().map(|v| &v.ident).collect();
     let traits = meta.derive_traits();
-    let attrs = meta.meta_attrs();
+    let enum_attrs = meta.meta_attrs();
+    let variant_names: Vec<&Ident> = meta.variants.iter().map(|v| &v.ident).collect();
+
+    let variants_with_attrs: Vec<TokenStream> =
+        meta.variants.iter().map(gen_variant_definition).collect();
 
     quote!(
         #[derive(#(#traits),*)]                                                // #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-        #(#[#attrs])*                                                          // #[serde(rename_all = "camelCase")]
+        #(#[#enum_attrs])*                                                     // #[serde(rename_all = "camelCase")]
         #vis enum #kind_name {                                                 // pub enum DrinkKind {
-            #(#variant_names),*                                                //     Mate, Coffee, Tea
+            #(#variants_with_attrs),*                                          //     #[default] Mate, Coffee, Tea
         }                                                                      // }
 
         impl #kind_name {                                                      // impl DrinkKind {
@@ -39,6 +42,17 @@ fn gen_definition(meta: &Meta) -> TokenStream {
                 ]                                                              //         ]
             }                                                                  //     }
         }                                                                      // }
+    )
+}
+
+/// Generate a single variant definition with its attributes
+fn gen_variant_definition(variant: &Variant) -> TokenStream {
+    let variant_name = &variant.ident;
+    let variant_attrs = &variant.attrs;
+
+    quote!(
+        #(#[#variant_attrs])*
+        #variant_name
     )
 }
 

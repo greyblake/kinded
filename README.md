@@ -165,6 +165,47 @@ You can pass multiple attributes:
 ))]
 ```
 
+### Variant attributes
+
+You can also apply attributes to individual variants of the generated kind enum using `attrs` on the variant:
+
+```rs
+use kinded::Kinded;
+use serde::Serialize;
+
+#[derive(Kinded, Serialize)]
+#[kinded(derive(Default, Serialize), attrs(serde(rename_all = "snake_case")))]
+enum Priority {
+    Low,
+    #[kinded(attrs(default, serde(rename = "normal")))]
+    Medium,
+    High,
+}
+
+// Medium is the default
+assert_eq!(PriorityKind::default(), PriorityKind::Medium);
+
+// Serde uses the custom rename for Medium
+let json = serde_json::to_string(&PriorityKind::Medium).unwrap();
+assert_eq!(json, r#""normal""#);
+
+// Other variants use the enum-level rename_all
+let json = serde_json::to_string(&PriorityKind::High).unwrap();
+assert_eq!(json, r#""high""#);
+```
+
+You can combine `attrs` with `rename` on the same variant:
+
+```rs
+#[derive(Kinded)]
+#[kinded(derive(Default))]
+enum Level {
+    #[kinded(rename = "low_level", attrs(default))]
+    Low,
+    Medium,
+}
+```
+
 ### Display trait
 
 Implementation of `Display` trait can be customized in the `serde` fashion:

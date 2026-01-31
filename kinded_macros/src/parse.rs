@@ -36,34 +36,68 @@ pub fn parse_derive_input(input: DeriveInput) -> Result<Meta, syn::Error> {
 
 fn parse_variant(variant: &syn::Variant) -> Variant {
     let rename = find_variant_kinded_rename(&variant.attrs);
+    let attrs = find_variant_kinded_attrs(&variant.attrs);
     Variant {
         ident: variant.ident.clone(),
         fields_type: parse_fields_type(&variant.fields),
         rename,
+        attrs,
     }
+}
+
+/// Parsed variant-level #[kinded(...)] attributes
+struct VariantKindedAttrs {
+    rename: Option<String>,
+    attrs: Vec<SynMeta>,
+}
+
+/// Parse all #[kinded(...)] attributes on a variant.
+/// Handles combined attributes like #[kinded(rename = "...", attrs(...))]
+fn parse_variant_kinded_attrs(attrs: &[Attribute]) -> VariantKindedAttrs {
+    let mut result = VariantKindedAttrs {
+        rename: None,
+        attrs: Vec::new(),
+    };
+
+    for attr in attrs {
+        if attr.path().is_ident("kinded") {
+            let _ = attr.parse_args_with(|input: ParseStream| {
+                while !input.is_empty() {
+                    let attr_name: Ident = input.parse()?;
+
+                    if attr_name == "rename" {
+                        let _: Token!(=) = input.parse()?;
+                        let lit_str: LitStr = input.parse()?;
+                        result.rename = Some(lit_str.value());
+                    } else if attr_name == "attrs" {
+                        let content;
+                        parenthesized!(content in input);
+                        let parsed_attrs = content.parse_terminated(SynMeta::parse, Token![,])?;
+                        result.attrs.extend(parsed_attrs);
+                    }
+                    // Ignore unknown attributes at variant level
+
+                    // Parse `,` if not at end
+                    if !input.is_empty() {
+                        let _: Token![,] = input.parse()?;
+                    }
+                }
+                Ok(())
+            });
+        }
+    }
+
+    result
 }
 
 /// Find `#[kinded(rename = "...")]` attribute on a variant and extract the rename value.
 fn find_variant_kinded_rename(attrs: &[Attribute]) -> Option<String> {
-    for attr in attrs {
-        if attr.path().is_ident("kinded") {
-            // Try to parse the attribute content
-            if let Ok(parsed) = attr.parse_args_with(|input: ParseStream| {
-                let attr_name: Ident = input.parse()?;
-                if attr_name == "rename" {
-                    let _: Token!(=) = input.parse()?;
-                    let lit_str: LitStr = input.parse()?;
-                    Ok(Some(lit_str.value()))
-                } else {
-                    Ok(None)
-                }
-            }) && parsed.is_some()
-            {
-                return parsed;
-            }
-        }
-    }
-    None
+    parse_variant_kinded_attrs(attrs).rename
+}
+
+/// Find `#[kinded(attrs(...))]` attribute on a variant and extract the attrs.
+fn find_variant_kinded_attrs(attrs: &[Attribute]) -> Vec<SynMeta> {
+    parse_variant_kinded_attrs(attrs).attrs
 }
 
 fn parse_fields_type(fields: &syn::Fields) -> FieldsType {

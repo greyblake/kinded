@@ -1,5 +1,6 @@
 ## Unreleased
 - Add `attrs` attribute to pass extra attributes to the generated kind enum (e.g., `#[kinded(attrs(serde(rename_all = "snake_case")))]`)
+- Add per-variant `attrs` attribute to pass attributes to individual kind variants (e.g., `#[kinded(attrs(default))]`) (fixes #22)
 - Make `kind()` method `const fn`, allowing usage in const contexts (fixes #12)
 
 ## v0.4.1 - 2026-01-29
