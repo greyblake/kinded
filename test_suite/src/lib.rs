@@ -475,6 +475,80 @@ fn should_work_with_lifetimes() {
     assert_eq!(identifier.kind(), IdentifierKind::Name);
 }
 
+mod const_kind {
+    use kinded::Kinded;
+
+    #[derive(Kinded)]
+    enum Status {
+        Active,
+        Inactive,
+        Pending(i32),
+        Custom { value: i32 },
+    }
+
+    /// Test that kind() can be used in const context with unit variant
+    const ACTIVE_KIND: StatusKind = Status::Active.kind();
+
+    /// Test that kind() can be used in const context with unit variant (another)
+    const INACTIVE_KIND: StatusKind = Status::Inactive.kind();
+
+    #[test]
+    fn should_work_in_const_context_unit_variant() {
+        assert_eq!(ACTIVE_KIND, StatusKind::Active);
+        assert_eq!(INACTIVE_KIND, StatusKind::Inactive);
+    }
+
+    #[test]
+    fn should_work_in_const_fn() {
+        const fn get_kind(status: &Status) -> StatusKind {
+            status.kind()
+        }
+
+        const STATUS: Status = Status::Active;
+        const KIND: StatusKind = get_kind(&STATUS);
+        assert_eq!(KIND, StatusKind::Active);
+    }
+
+    #[test]
+    fn should_work_in_const_match() {
+        const fn is_active(status: &Status) -> bool {
+            matches!(status.kind(), StatusKind::Active)
+        }
+
+        const RESULT: bool = is_active(&Status::Active);
+        assert!(RESULT);
+    }
+
+    /// Test with generic enum
+    #[derive(Kinded)]
+    enum Maybe<T> {
+        Just(T),
+        Nothing,
+    }
+
+    const NOTHING_KIND: MaybeKind = Maybe::<i32>::Nothing.kind();
+
+    #[test]
+    fn should_work_with_generic_enum_in_const() {
+        assert_eq!(NOTHING_KIND, MaybeKind::Nothing);
+    }
+
+    /// Test with custom kind name
+    #[derive(Kinded)]
+    #[kinded(kind = SimpleStatus)]
+    enum ComplexStatus {
+        Ok,
+        Error(i32),
+    }
+
+    const OK_KIND: SimpleStatus = ComplexStatus::Ok.kind();
+
+    #[test]
+    fn should_work_with_custom_kind_name_in_const() {
+        assert_eq!(OK_KIND, SimpleStatus::Ok);
+    }
+}
+
 mod rename {
     extern crate alloc;
     use alloc::string::ToString;
