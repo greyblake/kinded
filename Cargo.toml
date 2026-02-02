@@ -7,4 +7,5 @@ members = [
     "kinded_macros",
     "sandbox",
     "test_suite",
+    "examples/basic",
 ]
