@@ -1,6 +1,7 @@
 use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Trait, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
+use std::collections::HashSet;
 use syn::{
     Attribute, Data, DeriveInput, LitStr, Meta as SynMeta, Path, Token, bracketed, parenthesized,
     parse::{Parse, ParseStream},
@@ -174,10 +175,12 @@ impl Parse for KindedAttributes {
                 let parsed_idents = skip_input.parse_terminated(Ident::parse, Token![,])?;
 
                 // Convert Idents to Trait enum values with validation
-                let mut traits: Vec<Trait> = Vec::new();
+                let mut traits: HashSet<Trait> = HashSet::new();
                 for ident in parsed_idents {
                     match Trait::from_str(&ident.to_string()) {
-                        Some(t) => traits.push(t),
+                        Some(t) => {
+                            traits.insert(t);
+                        }
                         None => {
                             let allowed: Vec<&str> =
                                 Trait::all().iter().map(|t| t.as_str()).collect();
@@ -270,7 +273,7 @@ mod tests {
     fn parse_skip_derive_single() {
         let attrs = parse_kinded_attrs(quote! { #[kinded(skip_derive(Clone))] }).unwrap();
         let skip = attrs.skip_derive.unwrap();
-        assert_eq!(skip, vec![Trait::Clone]);
+        assert_eq!(skip, HashSet::from([Trait::Clone]));
     }
 
     #[test]
@@ -278,7 +281,10 @@ mod tests {
         let attrs =
             parse_kinded_attrs(quote! { #[kinded(skip_derive(Clone, Copy, Debug))] }).unwrap();
         let skip = attrs.skip_derive.unwrap();
-        assert_eq!(skip, vec![Trait::Clone, Trait::Copy, Trait::Debug]);
+        assert_eq!(
+            skip,
+            HashSet::from([Trait::Clone, Trait::Copy, Trait::Debug])
+        );
     }
 
     #[test]
@@ -290,7 +296,7 @@ mod tests {
         let skip = attrs.skip_derive.unwrap();
         assert_eq!(
             skip,
-            vec![
+            HashSet::from([
                 Trait::Debug,
                 Trait::Clone,
                 Trait::Copy,
@@ -299,7 +305,7 @@ mod tests {
                 Trait::Display,
                 Trait::FromStr,
                 Trait::From,
-            ]
+            ])
         );
     }
 
@@ -313,7 +319,7 @@ mod tests {
         assert_eq!(attrs.kind.unwrap().to_string(), "MyKind");
 
         let skip = attrs.skip_derive.unwrap();
-        assert_eq!(skip, vec![Trait::Clone, Trait::Copy]);
+        assert_eq!(skip, HashSet::from([Trait::Clone, Trait::Copy]));
 
         let derive: Vec<String> = attrs
             .derive

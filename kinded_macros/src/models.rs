@@ -1,9 +1,10 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
+use std::collections::HashSet;
 use syn::{Generics, Meta as SynMeta, Path, Visibility};
 
 /// Traits that are automatically implemented for the generated kind enum.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Trait {
     // Derived via #[derive(...)]
     Debug,
@@ -165,7 +166,7 @@ pub struct KindedAttributes {
     /// Opt out default derives/implementations for traits like Debug, Clone, Copy, PartialEq, Eq,
     /// FromStr, Display, etc. It may be needed in some cases for compatibility with other crates
     /// that provide similar macros. See https://github.com/greyblake/kinded/pull/19
-    pub skip_derive: Option<Vec<Trait>>,
+    pub skip_derive: Option<HashSet<Trait>>,
 
     /// Attributes to customize implementation for Display trait
     pub display: Option<DisplayCase>,
@@ -262,6 +263,7 @@ impl DisplayCase {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
     use syn::parse_quote;
 
     fn create_meta(kinded_attrs: KindedAttributes) -> Meta {
@@ -313,7 +315,7 @@ mod tests {
     #[test]
     fn derive_traits_skip_one() {
         let meta = create_meta(KindedAttributes {
-            skip_derive: Some(vec![Trait::Clone]),
+            skip_derive: Some(HashSet::from([Trait::Clone])),
             ..Default::default()
         });
         let traits: Vec<String> = meta
@@ -327,7 +329,7 @@ mod tests {
     #[test]
     fn derive_traits_skip_multiple() {
         let meta = create_meta(KindedAttributes {
-            skip_derive: Some(vec![Trait::Clone, Trait::Copy, Trait::Eq]),
+            skip_derive: Some(HashSet::from([Trait::Clone, Trait::Copy, Trait::Eq])),
             ..Default::default()
         });
         let traits: Vec<String> = meta
@@ -341,13 +343,13 @@ mod tests {
     #[test]
     fn derive_traits_skip_all() {
         let meta = create_meta(KindedAttributes {
-            skip_derive: Some(vec![
+            skip_derive: Some(HashSet::from([
                 Trait::Debug,
                 Trait::Clone,
                 Trait::Copy,
                 Trait::PartialEq,
                 Trait::Eq,
-            ]),
+            ])),
             ..Default::default()
         });
         let traits: Vec<String> = meta
@@ -362,7 +364,7 @@ mod tests {
     fn derive_traits_skip_and_add() {
         let meta = create_meta(KindedAttributes {
             derive: Some(vec![parse_quote!(Hash)]),
-            skip_derive: Some(vec![Trait::Clone, Trait::Copy]),
+            skip_derive: Some(HashSet::from([Trait::Clone, Trait::Copy])),
             ..Default::default()
         });
         let traits: Vec<String> = meta
