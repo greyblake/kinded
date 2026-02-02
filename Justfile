@@ -25,10 +25,10 @@ examples:
 	done
 
 watch:
-	cargo watch -x 'test --workspace'
+	bacon
 
 watch-sandbox:
-	cargo watch -s "cd sandbox && cargo run"
+	bacon run --path sandbox
 
 typos:
 	which typos >/dev/null || cargo install typos-cli
