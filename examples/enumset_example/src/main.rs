@@ -68,8 +68,7 @@ fn main() {
     assert_eq!(admin.kind(), PermissionKind::Admin);
 
     // Now use EnumSet with the kind enum
-    let user_permissions: EnumSet<PermissionKind> =
-        PermissionKind::Read | PermissionKind::Write;
+    let user_permissions: EnumSet<PermissionKind> = PermissionKind::Read | PermissionKind::Write;
 
     let admin_permissions: EnumSet<PermissionKind> = EnumSet::all();
 

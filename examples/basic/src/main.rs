@@ -22,7 +22,10 @@ fn main() {
     assert_eq!(mate.kind(), DrinkKind::Mate);
 
     // Get all kind variants
-    assert_eq!(DrinkKind::all(), [DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
+    assert_eq!(
+        DrinkKind::all(),
+        [DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]
+    );
 
     // Pattern match on kind and access original data
     let description = match &espresso {
@@ -56,6 +59,7 @@ fn main() {
     // Kind implements Copy, Clone, PartialEq, Eq, Debug
     let kind = DrinkKind::Coffee;
     let kind_copy = kind; // Copy
+    #[allow(clippy::clone_on_copy)]
     let kind_clone = kind.clone(); // Clone
     assert_eq!(kind, kind_copy); // PartialEq
     assert_eq!(kind, kind_clone);
