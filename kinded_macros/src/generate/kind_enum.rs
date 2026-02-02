@@ -1,4 +1,4 @@
-use crate::models::{DisplayCase, Meta, Variant};
+use crate::models::{DisplayCase, Meta, Trait, Variant};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
@@ -7,19 +7,19 @@ pub fn gen_kind_enum(meta: &Meta) -> TokenStream {
     let impl_kind_trait = gen_impl_kind_trait(meta);
 
     // Conditionally generate trait implementations based on skip_derive
-    let impl_from_traits = if meta.kinded_attrs.should_skip_derive("From") {
+    let impl_from_traits = if meta.kinded_attrs.should_skip(Trait::From) {
         quote!()
     } else {
         gen_impl_from_traits(meta)
     };
 
-    let impl_display_trait = if meta.kinded_attrs.should_skip_derive("Display") {
+    let impl_display_trait = if meta.kinded_attrs.should_skip(Trait::Display) {
         quote!()
     } else {
         gen_impl_display_trait(meta)
     };
 
-    let impl_from_str_trait = if meta.kinded_attrs.should_skip_derive("FromStr") {
+    let impl_from_str_trait = if meta.kinded_attrs.should_skip(Trait::FromStr) {
         quote!()
     } else {
         gen_impl_from_str_trait(meta)

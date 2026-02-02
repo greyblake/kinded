@@ -1,4 +1,4 @@
-use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Variant};
+use crate::models::{DisplayCase, FieldsType, KindedAttributes, Meta, Trait, Variant};
 use proc_macro2::Ident;
 use quote::ToTokens;
 use syn::{
@@ -171,27 +171,22 @@ impl Parse for KindedAttributes {
             } else if attr_name == "skip_derive" {
                 let skip_input;
                 parenthesized!(skip_input in input);
-                let parsed_traits = skip_input.parse_terminated(Ident::parse, Token![,])?;
-                let traits: Vec<Ident> = parsed_traits.into_iter().collect();
+                let parsed_idents = skip_input.parse_terminated(Ident::parse, Token![,])?;
 
-                // Validate that only allowed traits are specified
-                const ALLOWED_SKIP_DERIVE: &[&str] = &[
-                    "Debug",
-                    "Clone",
-                    "Copy",
-                    "PartialEq",
-                    "Eq",
-                    "Display",
-                    "FromStr",
-                    "From",
-                ];
-                for trait_name in &traits {
-                    if !ALLOWED_SKIP_DERIVE.contains(&trait_name.to_string().as_str()) {
-                        let msg = format!(
-                            "Unknown trait to skip: `{trait_name}`. Allowed traits: {}",
-                            ALLOWED_SKIP_DERIVE.join(", ")
-                        );
-                        return Err(syn::Error::new(trait_name.span(), msg));
+                // Convert Idents to Trait enum values with validation
+                let mut traits: Vec<Trait> = Vec::new();
+                for ident in parsed_idents {
+                    match Trait::from_str(&ident.to_string()) {
+                        Some(t) => traits.push(t),
+                        None => {
+                            let allowed: Vec<&str> =
+                                Trait::all().iter().map(|t| t.as_str()).collect();
+                            let msg = format!(
+                                "Unknown trait to skip: `{ident}`. Allowed traits: {}",
+                                allowed.join(", ")
+                            );
+                            return Err(syn::Error::new(ident.span(), msg));
+                        }
                     }
                 }
 
@@ -274,26 +269,16 @@ mod tests {
     #[test]
     fn parse_skip_derive_single() {
         let attrs = parse_kinded_attrs(quote! { #[kinded(skip_derive(Clone))] }).unwrap();
-        let skip: Vec<String> = attrs
-            .skip_derive
-            .unwrap()
-            .iter()
-            .map(|i| i.to_string())
-            .collect();
-        assert_eq!(skip, vec!["Clone"]);
+        let skip = attrs.skip_derive.unwrap();
+        assert_eq!(skip, vec![Trait::Clone]);
     }
 
     #[test]
     fn parse_skip_derive_multiple() {
         let attrs =
             parse_kinded_attrs(quote! { #[kinded(skip_derive(Clone, Copy, Debug))] }).unwrap();
-        let skip: Vec<String> = attrs
-            .skip_derive
-            .unwrap()
-            .iter()
-            .map(|i| i.to_string())
-            .collect();
-        assert_eq!(skip, vec!["Clone", "Copy", "Debug"]);
+        let skip = attrs.skip_derive.unwrap();
+        assert_eq!(skip, vec![Trait::Clone, Trait::Copy, Trait::Debug]);
     }
 
     #[test]
@@ -302,23 +287,18 @@ mod tests {
             #[kinded(skip_derive(Debug, Clone, Copy, PartialEq, Eq, Display, FromStr, From))]
         })
         .unwrap();
-        let skip: Vec<String> = attrs
-            .skip_derive
-            .unwrap()
-            .iter()
-            .map(|i| i.to_string())
-            .collect();
+        let skip = attrs.skip_derive.unwrap();
         assert_eq!(
             skip,
             vec![
-                "Debug",
-                "Clone",
-                "Copy",
-                "PartialEq",
-                "Eq",
-                "Display",
-                "FromStr",
-                "From"
+                Trait::Debug,
+                Trait::Clone,
+                Trait::Copy,
+                Trait::PartialEq,
+                Trait::Eq,
+                Trait::Display,
+                Trait::FromStr,
+                Trait::From,
             ]
         );
     }
@@ -332,13 +312,8 @@ mod tests {
 
         assert_eq!(attrs.kind.unwrap().to_string(), "MyKind");
 
-        let skip: Vec<String> = attrs
-            .skip_derive
-            .unwrap()
-            .iter()
-            .map(|i| i.to_string())
-            .collect();
-        assert_eq!(skip, vec!["Clone", "Copy"]);
+        let skip = attrs.skip_derive.unwrap();
+        assert_eq!(skip, vec![Trait::Clone, Trait::Copy]);
 
         let derive: Vec<String> = attrs
             .derive
