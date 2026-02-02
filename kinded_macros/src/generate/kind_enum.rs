@@ -4,10 +4,26 @@ use quote::quote;
 
 pub fn gen_kind_enum(meta: &Meta) -> TokenStream {
     let kind_enum_definition = gen_definition(meta);
-    let impl_from_traits = gen_impl_from_traits(meta);
-    let impl_display_trait = gen_impl_display_trait(meta);
-    let impl_from_str_trait = gen_impl_from_str_trait(meta);
     let impl_kind_trait = gen_impl_kind_trait(meta);
+
+    // Conditionally generate trait implementations based on skip_derive
+    let impl_from_traits = if meta.kinded_attrs.should_skip_derive("From") {
+        quote!()
+    } else {
+        gen_impl_from_traits(meta)
+    };
+
+    let impl_display_trait = if meta.kinded_attrs.should_skip_derive("Display") {
+        quote!()
+    } else {
+        gen_impl_display_trait(meta)
+    };
+
+    let impl_from_str_trait = if meta.kinded_attrs.should_skip_derive("FromStr") {
+        quote!()
+    } else {
+        gen_impl_from_str_trait(meta)
+    };
 
     quote!(
         #kind_enum_definition

@@ -168,6 +168,39 @@ impl Parse for KindedAttributes {
                     let msg = format!("Duplicated attribute: {attr_name}");
                     return Err(syn::Error::new(attr_name.span(), msg));
                 }
+            } else if attr_name == "skip_derive" {
+                let skip_input;
+                parenthesized!(skip_input in input);
+                let parsed_traits = skip_input.parse_terminated(Ident::parse, Token![,])?;
+                let traits: Vec<Ident> = parsed_traits.into_iter().collect();
+
+                // Validate that only allowed traits are specified
+                const ALLOWED_SKIP_DERIVE: &[&str] = &[
+                    "Debug",
+                    "Clone",
+                    "Copy",
+                    "PartialEq",
+                    "Eq",
+                    "Display",
+                    "FromStr",
+                    "From",
+                ];
+                for trait_name in &traits {
+                    if !ALLOWED_SKIP_DERIVE.contains(&trait_name.to_string().as_str()) {
+                        let msg = format!(
+                            "Unknown trait to skip: `{trait_name}`. Allowed traits: {}",
+                            ALLOWED_SKIP_DERIVE.join(", ")
+                        );
+                        return Err(syn::Error::new(trait_name.span(), msg));
+                    }
+                }
+
+                if kinded_attrs.skip_derive.is_none() {
+                    kinded_attrs.skip_derive = Some(traits);
+                } else {
+                    let msg = format!("Duplicated attribute: {attr_name}");
+                    return Err(syn::Error::new(attr_name.span(), msg));
+                }
             } else if attr_name == "display" {
                 let _: Token!(=) = input.parse()?;
                 let case_lit_str: LitStr = input.parse()?;
@@ -226,5 +259,112 @@ impl Parse for KindedAttributes {
         }
 
         Ok(kinded_attrs)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::quote;
+
+    fn parse_kinded_attrs(tokens: proc_macro2::TokenStream) -> syn::Result<KindedAttributes> {
+        syn::parse2(tokens)
+    }
+
+    #[test]
+    fn parse_skip_derive_single() {
+        let attrs = parse_kinded_attrs(quote! { #[kinded(skip_derive(Clone))] }).unwrap();
+        let skip: Vec<String> = attrs
+            .skip_derive
+            .unwrap()
+            .iter()
+            .map(|i| i.to_string())
+            .collect();
+        assert_eq!(skip, vec!["Clone"]);
+    }
+
+    #[test]
+    fn parse_skip_derive_multiple() {
+        let attrs =
+            parse_kinded_attrs(quote! { #[kinded(skip_derive(Clone, Copy, Debug))] }).unwrap();
+        let skip: Vec<String> = attrs
+            .skip_derive
+            .unwrap()
+            .iter()
+            .map(|i| i.to_string())
+            .collect();
+        assert_eq!(skip, vec!["Clone", "Copy", "Debug"]);
+    }
+
+    #[test]
+    fn parse_skip_derive_all_allowed() {
+        let attrs = parse_kinded_attrs(quote! {
+            #[kinded(skip_derive(Debug, Clone, Copy, PartialEq, Eq, Display, FromStr, From))]
+        })
+        .unwrap();
+        let skip: Vec<String> = attrs
+            .skip_derive
+            .unwrap()
+            .iter()
+            .map(|i| i.to_string())
+            .collect();
+        assert_eq!(
+            skip,
+            vec![
+                "Debug",
+                "Clone",
+                "Copy",
+                "PartialEq",
+                "Eq",
+                "Display",
+                "FromStr",
+                "From"
+            ]
+        );
+    }
+
+    #[test]
+    fn parse_skip_derive_with_other_attrs() {
+        let attrs = parse_kinded_attrs(quote! {
+            #[kinded(kind = MyKind, skip_derive(Clone, Copy), derive(Hash))]
+        })
+        .unwrap();
+
+        assert_eq!(attrs.kind.unwrap().to_string(), "MyKind");
+
+        let skip: Vec<String> = attrs
+            .skip_derive
+            .unwrap()
+            .iter()
+            .map(|i| i.to_string())
+            .collect();
+        assert_eq!(skip, vec!["Clone", "Copy"]);
+
+        let derive: Vec<String> = attrs
+            .derive
+            .unwrap()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert_eq!(derive, vec!["Hash"]);
+    }
+
+    #[test]
+    fn parse_skip_derive_invalid_trait() {
+        let result = parse_kinded_attrs(quote! { #[kinded(skip_derive(Hash))] });
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("Unknown trait to skip"));
+        assert!(err.contains("Hash"));
+    }
+
+    #[test]
+    fn parse_skip_derive_duplicated() {
+        let result = parse_kinded_attrs(quote! {
+            #[kinded(skip_derive(Clone), skip_derive(Copy))]
+        });
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("Duplicated attribute"));
     }
 }

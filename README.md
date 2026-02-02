@@ -136,6 +136,44 @@ let mut drink_kinds = HashSet::new();
 drink_kinds.insert(DrinkKind::Mate);
 ```
 
+### Skip default traits
+
+In some cases you may need to opt out of default trait implementations.
+For example, when using `kinded` with crates like `enumset` that provide their own trait implementations,
+you can use `skip_derive(..)` to avoid conflicts:
+
+```rs
+use kinded::Kinded;
+
+#[derive(Kinded)]
+#[kinded(skip_derive(Display, FromStr))]
+enum Task {
+    Download { url: String },
+    Process(Vec<u8>),
+}
+
+// Display and FromStr are not implemented for TaskKind
+// You can provide your own custom implementations if needed
+```
+
+The following traits can be skipped:
+- Derived traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`
+- Implemented traits: `Display`, `FromStr`, `From`
+
+You can combine `skip_derive` with `derive` to replace default traits:
+
+```rs
+use kinded::Kinded;
+
+#[derive(Kinded)]
+#[kinded(skip_derive(Display), derive(Hash))]
+enum Expr {
+    Literal(i64),
+    Variable(String),
+    BinaryOp { left: Box<Expr>, op: char, right: Box<Expr> },
+}
+```
+
 ### Extra attributes
 
 If you're using derive macros from other libraries like Serde or Strum, you may want to add
