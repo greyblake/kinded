@@ -8,4 +8,5 @@ members = [
     "sandbox",
     "test_suite",
     "examples/basic",
+    "examples/enumset_example",
 ]
