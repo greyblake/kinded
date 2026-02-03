@@ -840,3 +840,189 @@ mod variant_attrs {
         assert_eq!(kind, ActionKind::Update);
     }
 }
+
+mod skip_derive {
+    use super::*;
+
+    mod skip_display {
+        use super::*;
+
+        #[derive(Kinded)]
+        #[kinded(skip_derive(Display))]
+        enum Priority {
+            Low,
+            High,
+        }
+
+        // Display is skipped, so we can't use format!("{}", kind)
+        // but Debug should still work
+        #[test]
+        fn should_still_have_debug() {
+            let kind = PriorityKind::Low;
+            let debug_str = alloc::format!("{:?}", kind);
+            assert_eq!(debug_str, "Low");
+        }
+
+        #[test]
+        fn should_still_have_from_str() {
+            use core::str::FromStr;
+            let kind = PriorityKind::from_str("Low").unwrap();
+            assert_eq!(kind, PriorityKind::Low);
+        }
+
+        #[test]
+        fn should_still_have_clone_copy() {
+            let kind = PriorityKind::Low;
+            let cloned = kind.clone();
+            let copied = kind;
+            assert_eq!(cloned, copied);
+        }
+    }
+
+    mod skip_from_str {
+        use super::*;
+
+        #[derive(Kinded)]
+        #[kinded(skip_derive(FromStr))]
+        enum Level {
+            Info,
+            Warn,
+        }
+
+        // FromStr is skipped, but Display should still work
+        #[test]
+        fn should_still_have_display() {
+            let kind = LevelKind::Info;
+            let display_str = alloc::format!("{}", kind);
+            assert_eq!(display_str, "Info");
+        }
+
+        #[test]
+        fn should_still_have_from() {
+            let level = Level::Info;
+            let kind: LevelKind = level.into();
+            assert_eq!(kind, LevelKind::Info);
+        }
+    }
+
+    mod skip_from {
+        use super::*;
+
+        #[derive(Kinded)]
+        #[kinded(skip_derive(From))]
+        enum Event {
+            Click,
+            Hover,
+        }
+
+        // From is skipped, but kind() method should still work
+        #[test]
+        fn should_still_have_kind_method() {
+            let event = Event::Click;
+            assert_eq!(event.kind(), EventKind::Click);
+        }
+
+        #[test]
+        fn should_still_have_display() {
+            let kind = EventKind::Click;
+            let display_str = alloc::format!("{}", kind);
+            assert_eq!(display_str, "Click");
+        }
+
+        #[test]
+        fn should_still_have_from_str() {
+            use core::str::FromStr;
+            let kind = EventKind::from_str("Click").unwrap();
+            assert_eq!(kind, EventKind::Click);
+        }
+    }
+
+    mod skip_multiple_impl_traits {
+        use super::*;
+
+        #[derive(Kinded)]
+        #[kinded(skip_derive(Display, FromStr, From))]
+        enum Minimal {
+            A,
+            B,
+        }
+
+        #[test]
+        fn should_still_have_debug() {
+            let kind = MinimalKind::A;
+            let debug_str = alloc::format!("{:?}", kind);
+            assert_eq!(debug_str, "A");
+        }
+
+        #[test]
+        fn should_still_have_partial_eq_eq() {
+            assert_eq!(MinimalKind::A, MinimalKind::A);
+            assert_ne!(MinimalKind::A, MinimalKind::B);
+        }
+
+        #[test]
+        fn should_still_have_clone_copy() {
+            let kind = MinimalKind::A;
+            let cloned = kind.clone();
+            let copied = kind;
+            assert_eq!(cloned, copied);
+        }
+
+        #[test]
+        fn should_still_have_kind_method() {
+            let val = Minimal::A;
+            assert_eq!(val.kind(), MinimalKind::A);
+        }
+
+        #[test]
+        fn should_still_have_all_method() {
+            assert_eq!(MinimalKind::all(), &[MinimalKind::A, MinimalKind::B]);
+        }
+    }
+
+    mod skip_display_and_add_hash {
+        use super::*;
+        use core::hash::{Hash, Hasher};
+
+        #[derive(Kinded)]
+        #[kinded(skip_derive(Display), derive(Hash))]
+        enum Token {
+            Ident,
+            Number,
+        }
+
+        #[test]
+        fn should_have_hash() {
+            // Verify Hash is implemented by using it
+            struct DummyHasher(u64);
+            impl Hasher for DummyHasher {
+                fn finish(&self) -> u64 {
+                    self.0
+                }
+                fn write(&mut self, bytes: &[u8]) {
+                    for &b in bytes {
+                        self.0 = self.0.wrapping_add(b as u64);
+                    }
+                }
+            }
+
+            let mut hasher = DummyHasher(0);
+            TokenKind::Ident.hash(&mut hasher);
+            let hash1 = hasher.finish();
+
+            let mut hasher = DummyHasher(0);
+            TokenKind::Number.hash(&mut hasher);
+            let hash2 = hasher.finish();
+
+            // Different variants should (likely) have different hashes
+            assert_ne!(hash1, hash2);
+        }
+
+        #[test]
+        fn should_still_have_from_str() {
+            use core::str::FromStr;
+            let kind = TokenKind::from_str("Ident").unwrap();
+            assert_eq!(kind, TokenKind::Ident);
+        }
+    }
+}

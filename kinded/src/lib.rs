@@ -120,7 +120,7 @@
 //!
 //! ### Derive traits
 //!
-//! By default the kind type implements the following traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `From<T>`, `From<&T>`.
+//! By default the kind type implements the following traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `Display`, `FromStr`, `From<T>`, `From<&T>`.
 //!
 //! Extra traits can be derived with `derive(..)` attribute:
 //!
@@ -138,6 +138,41 @@
 //!
 //! let mut drink_kinds = HashSet::new();
 //! drink_kinds.insert(DrinkKind::Mate);
+//! ```
+//!
+//! ### Skip default traits
+//!
+//! In some cases you may need to opt out of default trait implementations.
+//! For example, when using `kinded` with crates like `enumset` that provide their own trait implementations,
+//! you can use `skip_derive(..)` to avoid conflicts:
+//!
+//! ```
+//! use kinded::Kinded;
+//!
+//! #[derive(Kinded)]
+//! #[kinded(skip_derive(Display, FromStr))]
+//! enum Task {
+//!     Download { url: String },
+//!     Process(Vec<u8>),
+//! }
+//!
+//! // Display and FromStr are not implemented for TaskKind
+//! // You can provide your own custom implementations if needed
+//! ```
+//!
+//! The following traits can be skipped:
+//! - Derived traits: `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`
+//! - Implemented traits: `Display`, `FromStr`, `From`
+//!
+//! You can combine `skip_derive` with `derive` to replace default traits:
+//!
+//! ```
+//! #[derive(kinded::Kinded)]
+//! #[kinded(skip_derive(Display), derive(Hash))]
+//! enum Expr {
+//!     Literal(i64),
+//!     Variable(String),
+//! }
 //! ```
 //!
 //! ### Generic attributes
@@ -274,7 +309,7 @@
 //! the second-largest city in Ukraine, 60km away from the border with russia. Today about [a third of my home city is destroyed](https://www.youtube.com/watch?v=ihoufBFSZds) by russians.
 //! My parents, my relatives and my friends had to survive the artillery and air attack, living for over a month in basements.
 //!
-//! Some of them have managed to evacuate to EU. Some others are trying to live "normal lifes" in Kharkiv, doing there daily duties.
+//! Some of them have managed to evacuate to EU. Some others are trying to live "normal lives" in Kharkiv, doing there daily duties.
 //! And some are at the front line right now, risking their lives every second to protect the rest.
 //!
 //! I encourage you to donate to [Charity foundation of Serhiy Prytula](https://prytulafoundation.org/en).

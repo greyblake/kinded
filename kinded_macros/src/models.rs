@@ -1,6 +1,76 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
+use std::collections::HashSet;
 use syn::{Generics, Meta as SynMeta, Path, Visibility};
+
+/// Traits that are automatically implemented for the generated kind enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Trait {
+    // Derived via #[derive(...)]
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    // Manually implemented
+    Display,
+    FromStr,
+    From,
+}
+
+impl Trait {
+    /// Traits that are derived by default via `#[derive(...)]`.
+    pub const fn default_derives() -> &'static [Trait] {
+        &[
+            Trait::Debug,
+            Trait::Clone,
+            Trait::Copy,
+            Trait::PartialEq,
+            Trait::Eq,
+        ]
+    }
+
+    /// All traits that can be skipped.
+    pub const fn all() -> &'static [Trait] {
+        &[
+            Trait::Debug,
+            Trait::Clone,
+            Trait::Copy,
+            Trait::PartialEq,
+            Trait::Eq,
+            Trait::Display,
+            Trait::FromStr,
+            Trait::From,
+        ]
+    }
+
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Trait::Debug => "Debug",
+            Trait::Clone => "Clone",
+            Trait::Copy => "Copy",
+            Trait::PartialEq => "PartialEq",
+            Trait::Eq => "Eq",
+            Trait::Display => "Display",
+            Trait::FromStr => "FromStr",
+            Trait::From => "From",
+        }
+    }
+
+    pub fn from_str(s: &str) -> Option<Trait> {
+        match s {
+            "Debug" => Some(Trait::Debug),
+            "Clone" => Some(Trait::Clone),
+            "Copy" => Some(Trait::Copy),
+            "PartialEq" => Some(Trait::PartialEq),
+            "Eq" => Some(Trait::Eq),
+            "Display" => Some(Trait::Display),
+            "FromStr" => Some(Trait::FromStr),
+            "From" => Some(Trait::From),
+            _ => None,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct Meta {
@@ -30,11 +100,10 @@ impl Meta {
 
     /// Get the traits that need to be derived.
     pub fn derive_traits(&self) -> Vec<Path> {
-        const DEFAULT_DERIVE_TRAITS: &[&str] = &["Debug", "Clone", "Copy", "PartialEq", "Eq"];
-
-        let mut traits: Vec<Path> = DEFAULT_DERIVE_TRAITS
+        let mut traits: Vec<Path> = Trait::default_derives()
             .iter()
-            .map(|trait_name| Path::from(format_ident!("{trait_name}")))
+            .filter(|t| !self.kinded_attrs.should_skip(**t))
+            .map(|t| Path::from(format_ident!("{}", t.as_str())))
             .collect();
 
         // Add the extra specified traits, if they're different from the default ones
@@ -94,11 +163,26 @@ pub struct KindedAttributes {
     /// Traits to derive, specified with `derive(...)`
     pub derive: Option<Vec<Path>>,
 
+    /// Opt out default derives/implementations for traits like Debug, Clone, Copy, PartialEq, Eq,
+    /// FromStr, Display, etc. It may be needed in some cases for compatibility with other crates
+    /// that provide similar macros. See https://github.com/greyblake/kinded/pull/19
+    pub skip_derive: Option<HashSet<Trait>>,
+
     /// Attributes to customize implementation for Display trait
     pub display: Option<DisplayCase>,
 
     /// Extra attributes to apply to the generated kind enum (e.g., `#[serde(rename_all = "camelCase")]`).
     pub meta_attrs: Option<Vec<SynMeta>>,
+}
+
+impl KindedAttributes {
+    /// Check if a trait should be skipped from derive/implementation.
+    pub fn should_skip(&self, t: Trait) -> bool {
+        self.skip_derive
+            .as_ref()
+            .map(|traits| traits.contains(&t))
+            .unwrap_or(false)
+    }
 }
 
 /// This uses the same names as serde + "Title Case" variant.
@@ -173,5 +257,121 @@ impl DisplayCase {
         use convert_case::{Case, Casing};
         let case: Case = self.into();
         s.to_case(case)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+    use syn::parse_quote;
+
+    fn create_meta(kinded_attrs: KindedAttributes) -> Meta {
+        Meta {
+            vis: Visibility::Inherited,
+            ident: format_ident!("TestEnum"),
+            generics: Generics::default(),
+            variants: vec![],
+            kinded_attrs,
+        }
+    }
+
+    #[test]
+    fn derive_traits_default() {
+        let meta = create_meta(KindedAttributes::default());
+        let traits: Vec<String> = meta
+            .derive_traits()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert_eq!(traits, vec!["Debug", "Clone", "Copy", "PartialEq", "Eq"]);
+    }
+
+    #[test]
+    fn derive_traits_with_extra() {
+        let meta = create_meta(KindedAttributes {
+            derive: Some(vec![parse_quote!(Hash), parse_quote!(Serialize)]),
+            ..Default::default()
+        });
+        let traits: Vec<String> = meta
+            .derive_traits()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert_eq!(
+            traits,
+            vec![
+                "Debug",
+                "Clone",
+                "Copy",
+                "PartialEq",
+                "Eq",
+                "Hash",
+                "Serialize"
+            ]
+        );
+    }
+
+    #[test]
+    fn derive_traits_skip_one() {
+        let meta = create_meta(KindedAttributes {
+            skip_derive: Some(HashSet::from([Trait::Clone])),
+            ..Default::default()
+        });
+        let traits: Vec<String> = meta
+            .derive_traits()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert_eq!(traits, vec!["Debug", "Copy", "PartialEq", "Eq"]);
+    }
+
+    #[test]
+    fn derive_traits_skip_multiple() {
+        let meta = create_meta(KindedAttributes {
+            skip_derive: Some(HashSet::from([Trait::Clone, Trait::Copy, Trait::Eq])),
+            ..Default::default()
+        });
+        let traits: Vec<String> = meta
+            .derive_traits()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert_eq!(traits, vec!["Debug", "PartialEq"]);
+    }
+
+    #[test]
+    fn derive_traits_skip_all() {
+        let meta = create_meta(KindedAttributes {
+            skip_derive: Some(HashSet::from([
+                Trait::Debug,
+                Trait::Clone,
+                Trait::Copy,
+                Trait::PartialEq,
+                Trait::Eq,
+            ])),
+            ..Default::default()
+        });
+        let traits: Vec<String> = meta
+            .derive_traits()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert!(traits.is_empty());
+    }
+
+    #[test]
+    fn derive_traits_skip_and_add() {
+        let meta = create_meta(KindedAttributes {
+            derive: Some(vec![parse_quote!(Hash)]),
+            skip_derive: Some(HashSet::from([Trait::Clone, Trait::Copy])),
+            ..Default::default()
+        });
+        let traits: Vec<String> = meta
+            .derive_traits()
+            .iter()
+            .map(|p| quote!(#p).to_string())
+            .collect();
+        assert_eq!(traits, vec!["Debug", "PartialEq", "Eq", "Hash"]);
     }
 }
