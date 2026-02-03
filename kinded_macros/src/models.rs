@@ -217,8 +217,8 @@ pub enum DisplayCase {
     Upper,
 }
 
-impl From<DisplayCase> for convert_case::Case {
-    fn from(display_case: DisplayCase) -> convert_case::Case {
+impl From<DisplayCase> for convert_case::Case<'static> {
+    fn from(display_case: DisplayCase) -> convert_case::Case<'static> {
         use convert_case::Case;
 
         // Note that convert_case use slightly different names than serde.
@@ -226,7 +226,7 @@ impl From<DisplayCase> for convert_case::Case {
             DisplayCase::Snake => Case::Snake,
             DisplayCase::Camel => Case::Camel,
             DisplayCase::Pascal => Case::Pascal,
-            DisplayCase::ScreamingSnake => Case::ScreamingSnake,
+            DisplayCase::ScreamingSnake => Case::Constant,
             DisplayCase::Kebab => Case::Kebab,
             DisplayCase::ScreamingKebab => Case::Cobol,
             DisplayCase::Title => Case::Title,
@@ -255,7 +255,7 @@ impl DisplayCase {
 
     pub fn apply(self, s: &str) -> String {
         use convert_case::{Case, Casing};
-        let case: Case = self.into();
+        let case: Case<'static> = self.into();
         s.to_case(case)
     }
 }

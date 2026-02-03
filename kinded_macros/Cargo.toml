@@ -16,7 +16,7 @@ categories = ["data-structures", "rust-patterns"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-convert_case = "0.6.0"
+convert_case = "0.11.0"
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "2.0", features = ["extra-traits", "full"] }
