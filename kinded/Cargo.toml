@@ -1,6 +1,6 @@
 [package]
 name = "kinded"
-version = "0.4.1"
+version = "0.5.0"
 edition = "2024"
 authors = ["Serhii Potapov <blake131313@gmail.com>"]
 
@@ -16,4 +16,4 @@ categories = ["data-structures", "rust-patterns"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-kinded_macros = { version = "0.4.1", path = "../kinded_macros" }
+kinded_macros = { version = "0.5.0", path = "../kinded_macros" }

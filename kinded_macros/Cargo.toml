@@ -1,6 +1,6 @@
 [package]
 name = "kinded_macros"
-version = "0.4.1"
+version = "0.5.0"
 edition = "2024"
 authors = ["Serhii Potapov <blake131313@gmail.com>"]
 

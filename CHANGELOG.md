@@ -1,4 +1,4 @@
-## v0.5.0 - 2026-02-xx
+## v0.5.0 - 2026-02-03
 - Add `skip_derive` attribute to opt out of default trait implementations (fixes #19).
 - Add `attrs` attribute to pass extra attributes to the generated kind enum (e.g., `#[kinded(attrs(serde(rename_all = "snake_case")))]`)
 - Add per-variant `attrs` attribute to pass attributes to individual kind variants (e.g., `#[kinded(attrs(default))]`) (fixes #22)
