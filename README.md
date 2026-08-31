@@ -94,6 +94,20 @@ The kind type gets implementation of `::all()` associated function, which return
 assert_eq!(DrinkKind::all(), [DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea]);
 ```
 
+## Get variant name as a string
+
+The kind type gets a `const fn as_str()` method that returns the variant name as `&'static str`.
+The returned value respects the `display` and `rename` attributes, so it always matches the `Display` output:
+
+```rs
+let name: &'static str = DrinkKind::Mate.as_str();
+assert_eq!(name, "Mate");
+
+// It is a const fn, so it can be used in const contexts
+const COFFEE_NAME: &str = DrinkKind::Coffee.as_str();
+assert_eq!(COFFEE_NAME, "Coffee");
+```
+
 
 ## Attributes
 

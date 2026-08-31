@@ -1,3 +1,7 @@
+## v0.5.1 - 2026-08-31
+- Add `const fn as_str()` method to the kind type, returning the variant name as `&'static str`.
+  The value respects the `display` and `rename` attributes, so it always matches the `Display` output.
+
 ## v0.5.0 - 2026-02-03
 - Add `skip_derive` attribute to opt out of default trait implementations (fixes #19).
 - Add `attrs` attribute to pass extra attributes to the generated kind enum (e.g., `#[kinded(attrs(serde(rename_all = "snake_case")))]`)

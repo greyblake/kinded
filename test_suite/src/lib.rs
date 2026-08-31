@@ -549,6 +549,98 @@ mod const_kind {
     }
 }
 
+mod as_str {
+    extern crate alloc;
+    use alloc::string::ToString;
+    use kinded::Kinded;
+
+    #[derive(Kinded)]
+    enum Drink {
+        Mate,
+        Coffee(&'static str),
+        BlackTea { caffeine: bool },
+    }
+
+    #[test]
+    fn should_return_original_variant_name_by_default() {
+        assert_eq!(DrinkKind::Mate.as_str(), "Mate");
+        assert_eq!(DrinkKind::Coffee.as_str(), "Coffee");
+        assert_eq!(DrinkKind::BlackTea.as_str(), "BlackTea");
+    }
+
+    #[test]
+    fn should_return_static_str() {
+        fn receive_static_str(_: &'static str) {}
+        receive_static_str(DrinkKind::Mate.as_str());
+    }
+
+    #[test]
+    fn should_respect_display_case() {
+        #[derive(Kinded)]
+        #[kinded(display = "snake_case")]
+        enum Beverage {
+            HotMate,
+            IcedCoffee,
+        }
+
+        assert_eq!(BeverageKind::HotMate.as_str(), "hot_mate");
+        assert_eq!(BeverageKind::IcedCoffee.as_str(), "iced_coffee");
+    }
+
+    #[test]
+    fn should_respect_rename() {
+        #[derive(Kinded)]
+        #[kinded(display = "snake_case")]
+        enum Validator {
+            NotEmpty,
+            #[kinded(rename = "len_utf16_min")]
+            LenUtf16Min,
+        }
+
+        assert_eq!(ValidatorKind::NotEmpty.as_str(), "not_empty");
+        assert_eq!(ValidatorKind::LenUtf16Min.as_str(), "len_utf16_min");
+    }
+
+    #[test]
+    fn should_match_display_output() {
+        for kind in DrinkKind::all() {
+            assert_eq!(kind.as_str(), kind.to_string());
+        }
+    }
+
+    #[test]
+    fn should_work_in_const_context() {
+        const MATE_NAME: &str = DrinkKind::Mate.as_str();
+        assert_eq!(MATE_NAME, "Mate");
+    }
+
+    #[test]
+    fn should_work_when_display_is_skipped() {
+        #[derive(Kinded)]
+        #[kinded(skip_derive(Display))]
+        enum Priority {
+            Low,
+            High,
+        }
+
+        assert_eq!(PriorityKind::Low.as_str(), "Low");
+        assert_eq!(PriorityKind::High.as_str(), "High");
+    }
+
+    #[test]
+    fn should_work_with_custom_kind_name() {
+        #[derive(Kinded)]
+        #[kinded(kind = SimpleDrink)]
+        enum Cocktail {
+            Mojito,
+            PinaColada,
+        }
+
+        assert_eq!(SimpleDrink::Mojito.as_str(), "Mojito");
+        assert_eq!(SimpleDrink::PinaColada.as_str(), "PinaColada");
+    }
+}
+
 mod rename {
     extern crate alloc;
     use alloc::string::ToString;

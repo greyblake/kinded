@@ -44,6 +44,13 @@ fn gen_definition(meta: &Meta) -> TokenStream {
     let variants_with_attrs: Vec<TokenStream> =
         meta.variants.iter().map(gen_variant_definition).collect();
 
+    let maybe_case = meta.kinded_attrs.display;
+    let as_str_match_branches = meta.variants.iter().map(|variant| {
+        let variant_name = &variant.ident;
+        let display_name = variant_display_name(variant, maybe_case);
+        quote!(#kind_name::#variant_name => #display_name)
+    });
+
     quote!(
         #[derive(#(#traits),*)]                                                // #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         #(#[#enum_attrs])*                                                     // #[serde(rename_all = "camelCase")]
@@ -57,8 +64,27 @@ fn gen_definition(meta: &Meta) -> TokenStream {
                     #(#kind_name::#variant_names),*                            //             DrinkKind::Mate, DrinkKind::Coffee, DrinkKind::Tea
                 ]                                                              //         ]
             }                                                                  //     }
+
+            /// Return the variant name as a static string.
+            /// Respects the `display` and `rename` attributes,
+            /// so the value always matches the `Display` output.
+            pub const fn as_str(&self) -> &'static str {                       //     pub const fn as_str(&self) -> &'static str {
+                match self {                                                   //         match self {
+                    #(#as_str_match_branches),*                                //             DrinkKind::Mate => "Mate",
+                }                                                              //         }
+            }                                                                  //     }
         }                                                                      // }
     )
+}
+
+/// Get the display name for a variant: the custom rename if specified,
+/// otherwise the variant name with the enum-level case conversion applied.
+fn variant_display_name(variant: &Variant, maybe_case: Option<DisplayCase>) -> String {
+    if let Some(ref rename) = variant.rename {
+        rename.clone()
+    } else {
+        apply_maybe_case(variant.ident.to_string(), maybe_case)
+    }
 }
 
 /// Generate a single variant definition with its attributes
@@ -94,30 +120,13 @@ fn gen_impl_from_traits(meta: &Meta) -> TokenStream {
 
 fn gen_impl_display_trait(meta: &Meta) -> TokenStream {
     let kind_name = meta.kind_name();
-    let maybe_case = meta.kinded_attrs.display;
-
-    let match_branches = meta.variants.iter().map(|variant| {
-        // Use custom rename if specified, otherwise apply case conversion
-        let display_name = if let Some(ref rename) = variant.rename {
-            rename.clone()
-        } else {
-            let original_variant_name_str = variant.ident.to_string();
-            apply_maybe_case(original_variant_name_str, maybe_case)
-        };
-        let variant_name = &variant.ident;
-        quote!(
-            #kind_name::#variant_name => write!(f, #display_name)
-        )
-    });
 
     quote!(
         impl core::fmt::Display for #kind_name {                                    // impl core::fmt::Display for DrinkKind {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {  //     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                match self {                                                        //         match self {
-                    #(#match_branches),*                                            //             DrinkKind::Mate => write!(f, "mate"),
-                }                                                                   //         }
+                f.write_str(self.as_str())                                          //         f.write_str(self.as_str())
             }                                                                       //     }
-        }                                                                           //
+        }                                                                           // }
     )
 }
 
